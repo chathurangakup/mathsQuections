@@ -1,10 +1,16 @@
-import React from 'react';
-import { Text } from 'react-native';
+import React, {useEffect} from 'react';
+import {Text, View} from 'react-native';
 
-const Splash = () => {
+const Splash = props => {
+  useEffect(() => {
+    props.navigation.navigate('languageChange');
+  });
+
   return (
-    <Text>Hello,Splash!</Text>
+    <View style={{flex: 1,backgroundColor:'red'}}>
+      <Text>Hello,Splash!</Text>
+    </View>
   );
-}
+};
 
 export default Splash;
