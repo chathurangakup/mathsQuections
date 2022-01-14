@@ -1,12 +1,26 @@
-import React, {Component} from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, Platform,Text} from 'react-native';
 
-import {Onboarding} from '../routes/NavigationStack';
+import {Onboarding, MainStack} from '../routes/NavigationStack';
+import LocalizationHelper, {
+  getAvailableLanguageList,
+} from '../lib/LocalizationHelper';
 
 const Root = () => {
+
+  // useEffect(() => {
+  //   const availableLanguageList = getAvailableLanguageList();
+  //   LocalizationHelper.prototype.initializeLocalization(
+  //     availableLanguageList,
+  //     'en',
+  //     true,
+  //   );
+  // });
+
   return (
     <View style={{flex:1}}>
-      <Onboarding />
+      {/* <Onboarding /> */}
+      <MainStack/>
     </View>
   );
 };

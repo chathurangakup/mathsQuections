@@ -16,13 +16,15 @@ export const fontWeights = {
 };
 
 export const colors = {
-    brown: '#80479a',
-    purpleColor1: '#65246E', //purple
+    primaryColor1: '#22C3FF', //purple
     primaryColor2: '#EB275A', //pink
-    secondaryColor1: '#F88E13', //orange
-    secondaryColor2: '#178DE7', //blue
-    secondaryColor3: '#C42378', //pink+purple
+    secondaryColor1: '#CD853F', //orange
+    secondaryColor2: '#C71585', //blue
     blackColor: '#000000',
+    white: '#fff',
+    green:'#00AE28',
+    green1:'#20B2AA',
+    red:'#FC0000'
 }  
 
 export const materialTextFieldStyle = {
