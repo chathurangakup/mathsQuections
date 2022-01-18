@@ -6,6 +6,7 @@ import Splash from '../screens/onboarding/Splash';
 import Login from '../screens/onboarding/Login';
 
 import QuectionMain from '../screens/quectionsMain/QuectionsMain';
+import PinchScreen from '../screens/pinchScreen/PinchScreen';
 
 const onboardingScreens = {
   splash: {screen: Splash},
@@ -15,6 +16,7 @@ const onboardingScreens = {
 
 const signInScreens = {
   quectionMain: {screen: QuectionMain},
+  pinchScreen: {screen: PinchScreen}
 };
 
 const Stack = createNativeStackNavigator();

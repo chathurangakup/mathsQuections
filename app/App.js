@@ -5,6 +5,7 @@ import {Provider} from 'react-redux';
 import Splash from '../app/screens/onboarding/Splash';
 import Root from '../app/screens/Root';
 import {NavigationContainer} from '@react-navigation/native';
+import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 
 import {
   navigationRef,
@@ -57,4 +58,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default gestureHandlerRootHOC(App);

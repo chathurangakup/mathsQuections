@@ -10,7 +10,7 @@ const {width,height} = Dimensions.get('window');
 export const Button = props=> {
     return (
       <TouchableOpacity  onPress={props.onPressBtn} style={[styles.btnStyle,props.buttonStyle]}>
-         <Text style={[styles.textStyle,props.textStyles]}>Login</Text>
+         <Text style={[styles.textStyle,props.textStyles]}>{props.addText}</Text>
       </TouchableOpacity>
     );
 }
