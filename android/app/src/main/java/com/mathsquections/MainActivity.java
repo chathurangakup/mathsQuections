@@ -1,4 +1,4 @@
-package com.mathsquections;
+package com.chathu.apeiscole;
 
 import com.facebook.react.ReactActivity;
 

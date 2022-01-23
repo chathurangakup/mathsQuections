@@ -1,0 +1,15 @@
+{
+    "common": {
+      "successTitle": "வெற்றி",
+      "failTitle": "Alert",
+      "Oops": "Oops",
+      "insufficientBalanceTitle": "Insufficient balance",
+      "insufficientBalanceMsg": "Your balance is not sufficient to proceed. Please reload and try again",
+      "successMessage": "Your request is successful",
+      "successTitleHBB": "Success!",
+      "successMessageHBB": "You have successfully activated the Anytime Video Bonus Data Pack, valid till 31 Dec 2018.\n\nA joyous offer for the most joyous season of the year from Dialog Home Broadband.",
+      "doNotShowMessage": "Don't show this message",
+      "noData": "Sorry, no results found.",
+      "connTitle": "Your connections"
+    }
+}
