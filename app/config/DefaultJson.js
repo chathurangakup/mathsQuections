@@ -110,3 +110,14 @@ export const initialLanguageList = [
   // {id: 'ch', value: '中文', name: 'Chinese'},
   // {id: 'hi', value: 'हिन्दी', name: 'Hindi'},
 ];
+
+export const subj =[
+  {id:1, value: 'Grade 6', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:2, value: 'Grade 7', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:3, value: 'Grade 6', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:4, value: 'Grade 7', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:5, value: 'Grade 6', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:6, value: 'Grade 7', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:7, value: 'Grade 6', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'},
+  // {id:8, value: 'Grade 7', image:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga%40gmail.com%2FScreenshot_1.png?alt=media&token=ac33dc0e-611b-4c30-a787-472a05c00f9c'}
+]

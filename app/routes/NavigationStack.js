@@ -5,8 +5,10 @@ import LanguageChange from '../screens/onboarding/LanguageChange';
 import Splash from '../screens/onboarding/Splash';
 import Login from '../screens/onboarding/Login';
 
+import SubjectMain from '../screens/subjects/SubjectsMain';
 import QuectionMain from '../screens/quectionsMain/QuectionsMain';
 import PinchScreen from '../screens/pinchScreen/PinchScreen';
+
 
 const onboardingScreens = {
   splash: {screen: Splash},
@@ -15,8 +17,10 @@ const onboardingScreens = {
 };
 
 const signInScreens = {
+  subjectMain: {screen: SubjectMain},
   quectionMain: {screen: QuectionMain},
-  pinchScreen: {screen: PinchScreen}
+  pinchScreen: {screen: PinchScreen},
+ 
 };
 
 const Stack = createNativeStackNavigator();
@@ -38,7 +42,7 @@ export const MainStack = () => {
   }
   return (
     <Stack.Navigator
-      initialRouteName="quectionMain"
+      initialRouteName="subjectMain"
       screenOptions={{
         gestureEnabled: false,
         headerShown: false,

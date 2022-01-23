@@ -5,6 +5,9 @@ import {Onboarding, MainStack} from '../routes/NavigationStack';
 import LocalizationHelper, {
   getAvailableLanguageList,
 } from '../lib/LocalizationHelper';
+import  SlideUpPanel from '../components/SlideUpPanel';
+
+import Subj from '../screens/subjects/SubjectsMain';
 
 const Root = () => {
 
@@ -19,8 +22,10 @@ const Root = () => {
 
   return (
     <View style={{flex:1}}>
-      {/* <Onboarding /> */}
-      <MainStack/>
+      <Onboarding />
+      {/* <MainStack/> */}
+
+      <SlideUpPanel />
     </View>
   );
 };
