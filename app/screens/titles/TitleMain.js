@@ -14,17 +14,18 @@ import {connect} from 'react-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
+import {GET_TITLES} from './TitleActionTypes';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
-
-import {GET_SUBJECTS} from './SubjectActionTypes';
 
 const {width, height} = Dimensions.get('window');
 
-const SubjectMain = props => {
+const GradesMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
 
-  const [subjectData, setSubjectData] = useState([]);
+  const [titleData, setTitlesData] = useState([]);
+
+  const {subjectId, gradesId} = props.route.params;
 
   useEffect(() => {
     Animated.loop(
@@ -44,38 +45,48 @@ const SubjectMain = props => {
   }, []);
 
   useEffect(() => {
-    // console.log("subjectsConfig", props.config);
-    props.getSubjects({});
+    console.log('getTitles', props.config);
+    let params = {
+      subjectId: subjectId,
+      gradesId: gradesId,
+    };
+    props.getTitles(params);
     //console.log("subjectsConfig".props.subjectsConfig);
   }, []);
 
   useEffect(() => {
-    console.log('subjectsConfig', props.config);
+    console.log('titles', props.config);
     if (props.config != undefined) {
-      console.log('subjectsConfig', props.config.data.subjects);
-      setSubjectData(props.config.data.subjects);
+      //console.log('gradesConfig', props.config.data.grades);
+      setTitlesData(props.config.data.result);
     }
   }, [props.config]);
 
-  const SubjectItem = ({subjects}) => {
-    console.log('subjects', subjects);
+  const TitlesItem = ({titles}) => {
     return (
       <TouchableOpacity
         activeOpacity={0.0}
         onPress={() => {
-          props.navigation.navigate('gradesMain', {
-            subjectId: subjects.item._id,
+          props.navigation.navigate('teacherQuote', {
+            subjectId: subjectId,
+            gradesId: gradesId,
+            titleId: titles.item._id,
           });
         }}
         style={styles.subjectItemBtn}>
-        <Image
-          style={styles.subjectItemImgStyle}
-          source={{
-            uri: subjects.item.image,
-          }}
-        />
-        <Text style={styles.subjName}>{subjects.item.subjectName}</Text>
-        <Text style={styles.subjSubName}>{subjects.item.subjectSubName}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            paddingLeft: 20,
+          }}>
+          <View style={{}}>
+            <Text style={styles.subjName}>{titles.item.titleNumber}. </Text>
+          </View>
+          <View style={{}}>
+            <Text style={styles.subjName}>{titles.item.titleName}</Text>
+          </View>
+        </View>
       </TouchableOpacity>
     );
   };
@@ -98,13 +109,19 @@ const SubjectMain = props => {
       <View>
         <LoadingSpinner showLoading={props.loading} />
         <FlatList
-          data={subjectData}
-          style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
+          data={titleData}
+          style={{
+            marginTop: -60,
+            marginBottom: 80,
+            marginLeft: 10,
+            marginRight: 10,
+          }}
           contentContainerStyle={{alignItems: 'center'}}
           showsVerticalScrollIndicator={false}
-          numColumns={2}
+          numColumns={1}
           // keyExtractor={item=> item.value}
-          renderItem={item => <SubjectItem subjects={item} />}
+          keyExtractor={(item, index) => item.titleNumber}
+          renderItem={item => <TitlesItem titles={item} />}
         />
       </View>
     </SafeAreaView>
@@ -116,15 +133,15 @@ const styles = StyleSheet.create({
   subjectItemBtn: {
     backgroundColor: colors.lightBlue,
     margin: 10,
-    width: width / 2.2,
-    height: height / 3.5,
-    borderRadius: 10,
-    // padding: 15,
+    width: width,
+    height: 70,
+    borderRadius: 20,
+    padding: 20,
     shadow: '#9e9808',
     elevation: 5,
   },
   subjectItemImgStyle: {
-    width: width / 2.2,
+    width: width / 2.4,
     height: height / 5,
     borderRadius: 10,
   },
@@ -155,23 +172,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
   },
-  subjName: {color: 'black', fontSize: 25, alignSelf: 'center'},
+  subjName: {
+    color: 'black',
+    fontSize: 18,
+    alignSelf: 'center',
+    fontWeight: 'bold',
+  },
   subjSubName: {color: 'black', alignSelf: 'center', padding: 5},
 });
 
 const mapStateToProps = state => {
   return {
-    config: state.subjects.subjectsConfig,
+    config: state.titles.titlesConfig,
     loading: state.common.loading,
   };
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSubjects: () => {
-      dispatch({type: GET_SUBJECTS, payload: {}});
+    getTitles: payloadObj => {
+      dispatch({type: GET_TITLES, payload: payloadObj});
     },
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubjectMain);
+export default connect(mapStateToProps, mapDispatchToProps)(GradesMain);

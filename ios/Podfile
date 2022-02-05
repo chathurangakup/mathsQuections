@@ -16,6 +16,8 @@ target 'mathsQuections' do
 
   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
 
+  pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
+
   target 'mathsQuectionsTests' do
     inherit! :complete
     # Pods for testing

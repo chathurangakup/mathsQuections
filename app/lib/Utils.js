@@ -1,6 +1,7 @@
 import React, {useRef} from 'react';
 
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {BASE_URL, DEFAULT_PROTOCOL, API_ENDPOINT} from '../config/settings';
 import {Modalize} from 'react-native-modalize';
@@ -18,6 +19,26 @@ export const getConfig = async (key, value) => {
   } catch (e) {
     console.log(e);
   }
+};
+
+export const setJwttoken = async token => {
+  await AsyncStorage.setItem('jwtToken', token);
+};
+
+export const getJwttoken = async () => {
+  const token = await AsyncStorage.getItem('jwtToken');
+  console.log('token', token);
+  return token;
+};
+
+export const setLanguageId = async id => {
+  await AsyncStorage.setItem('languageId', id);
+};
+
+export const getLanguageId = async () => {
+  const languageId = await AsyncStorage.getItem('languageId');
+  console.log('languageId', languageId);
+  return languageId;
 };
 
 /**
@@ -47,8 +68,9 @@ export const createUrl = (nodeController, nodeAction) => {
 export const ajaxCall = async (
   url,
   params = {},
-  showSpinner = global.showAppDown ? false : true,
+  showSpinner = true,
   method = 'POST',
+  isAccessToken,
 ) => {
   if (showSpinner == true) {
     try {
@@ -59,22 +81,78 @@ export const ajaxCall = async (
         });
       }
 
-      let response = await fetch(
-        url,
-        {
-          method: method,
-          headers: {
-            'Content-Type': 'application/json',
+      let response = '';
+      const accesstoken = await getJwttoken();
+      if (isAccessToken == true && method == 'GET') {
+        console.log('accesstoken', accesstoken);
+        response = await fetch(
+          url,
+          {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + accesstoken,
+            },
           },
-          body: method === 'GET' ? '' : JSON.stringify(params),
-        },
-        (err, res) => {
-          if (err) {
-            return null;
-          }
-          return res;
-        },
-      );
+          (err, res) => {
+            if (err) {
+              return null;
+            }
+            return res;
+          },
+        );
+      } else if (isAccessToken == true && method == 'POST') {
+        response = await fetch(
+          url,
+          {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + accesstoken,
+            },
+            body: JSON.stringify(params),
+          },
+          (err, res) => {
+            if (err) {
+              return null;
+            }
+            return res;
+          },
+        );
+      } else if (isAccessToken == false && method == 'POST') {
+        response = await fetch(
+          url,
+          {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(params),
+          },
+          (err, res) => {
+            if (err) {
+              return null;
+            }
+            return res;
+          },
+        );
+      } else if (isAccessToken == false && method == 'GET') {
+        response = await fetch(
+          url,
+          {
+            method: method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+          (err, res) => {
+            if (err) {
+              return null;
+            }
+            return res;
+          },
+        );
+      }
 
       // const response = await fetch(url, {
       //     method: 'GET',

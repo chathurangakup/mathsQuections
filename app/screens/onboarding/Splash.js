@@ -15,6 +15,7 @@ import * as Animatable from 'react-native-animatable';
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
 import {colors} from '../../config/styles';
+import {getJwttoken} from '../../lib/Utils';
 
 const {width} = Dimensions.get('window');
 
@@ -32,6 +33,16 @@ const Splash = props => {
     }, 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  const clickNextBtn = async () => {
+    const token = await getJwttoken();
+    console.log('token1', token);
+    if (token != null) {
+      props.navigation.navigate('subjectMain');
+    } else {
+      props.navigation.navigate('languageChange');
+    }
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -71,7 +82,8 @@ const Splash = props => {
                   backgroundColor: colors.white,
                   borderRadius: 20,
                   margin: 5,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 35,
@@ -80,7 +92,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.7,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 25,
@@ -89,7 +102,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.5,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -98,7 +112,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.4,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -107,7 +122,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.3,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -116,9 +132,10 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.2,
-                }}></View>
+                }}
+              />
             </View>
-          
+
             <Animatable.View
               animation="slideInDown"
               duration={1500}
@@ -131,15 +148,14 @@ const Splash = props => {
                 alignItems: 'center',
                 flex: 1,
               }}>
-            <TouchableOpacity onPress={()=>props.navigation.navigate('languageChange')}>
-              <Icon
-                name="play-outline"
-                size={50}
-                color={colors.primaryColor1}
-              />
-                </TouchableOpacity>
+              <TouchableOpacity onPress={() => clickNextBtn()}>
+                <Icon
+                  name="play-outline"
+                  size={50}
+                  color={colors.primaryColor1}
+                />
+              </TouchableOpacity>
             </Animatable.View>
-          
           </View>
         </View>
       </ImageBackground>

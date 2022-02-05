@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -20,13 +20,34 @@ import {TextInput} from 'react-native-paper';
 
 import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
 
-import {setConfig, getConfig, createUrl,ajaxCall} from '../../lib/Utils';
+import {
+  setConfig,
+  getConfig,
+  createUrl,
+  ajaxCall,
+  setJwttoken,
+} from '../../lib/Utils';
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
-import { LoadingSpinner} from '../../components/LoadingSpinner';
+import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
 
 const {width, height} = Dimensions.get('window');
+
+var currentdate = new Date();
+var datetime =
+  'Last Sync: ' +
+  currentdate.getDate() +
+  '/' +
+  (currentdate.getMonth() + 1) +
+  '/' +
+  currentdate.getFullYear() +
+  ' @ ' +
+  currentdate.getHours() +
+  ':' +
+  currentdate.getMinutes() +
+  ':' +
+  currentdate.getSeconds();
 
 GoogleSignin.configure({
   // scopes: ['https://www.googleapis.com/auth/drive.readonly'], // [Android] what API you want to access on behalf of the user, default is email and profile
@@ -44,23 +65,26 @@ GoogleSignin.configure({
 
 const Login = props => {
   const t = props.translate;
+  const [email, setEmail] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const [isHaveAccount, setIsHaveAccount] = useState(false);
 
-  useEffect(async() => {
-    console.log("loading",props.loading);
-    const url = createUrl('users','userRole/teacher');
-    const param ={
-      userName: null,
-      email:"malaaa10@gmail.com",
-      phoneno:"255652",
-      designation:"student",
-      role:"student",
-      date:"2022/1/15",
-      image:""
-    }
-     const responce=await ajaxCall(url, param,true,'GET');
-    console.log("responce",responce)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(async () => {
+    console.log('loading', props.loading);
+    // const url = createUrl('users', 'userRole/teacher');
+    const param = {
+      userName: userName,
+      email: email,
+      phoneno: '255652',
+      designation: 'student',
+      role: 'student',
+      date: '2022/1/15',
+      image: '',
+    };
+    //const responce = await ajaxCall(url, param, true, 'GET');
 
-    console.log("createUrl")
+    console.log('createUrl');
   }, []);
 
   const setUser = () => {
@@ -76,6 +100,31 @@ const Login = props => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       console.log(userInfo);
+      const url = createUrl('users', 'signup');
+      let params = {
+        username: userInfo.user.name,
+        email: userInfo.user.email,
+        phoneno: '',
+        designation: '',
+        role: 'student',
+        date: datetime,
+        image: userInfo.user.photo,
+      };
+
+      const responce = await ajaxCall(url, params, true, 'POST', false);
+      console.log('responce', responce);
+      if (responce.result == 'success') {
+        const loginUrl = createUrl('users', 'login');
+        let params = {
+          email: userInfo.user.email,
+        };
+        const responce = await ajaxCall(loginUrl, params, true, 'POST', false);
+        if (responce.success == true) {
+          console.log('responce', responce);
+          setJwttoken(responce.token);
+          props.navigation.navigate('subjectMain');
+        }
+      }
     } catch (error) {
       console.log(error.message);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -99,6 +148,51 @@ const Login = props => {
     }
   };
 
+  const clickLogin = async () => {
+    const url = createUrl('users', 'signup');
+    let params = {
+      username: userName,
+      email: email,
+      phoneno: '',
+      designation: '',
+      role: 'student',
+      date: datetime,
+      image: '',
+    };
+    // auth.login();
+    if (isHaveAccount) {
+      if (email == null || userName == null) {
+        alert('Please enter email and username');
+      } else {
+        const responce = await ajaxCall(url, params, true, 'POST', false);
+        console.log('responce', responce);
+      }
+    } else {
+      if (email == null) {
+        alert('Please enter email');
+      } else {
+        const responce = await ajaxCall(url, params, true, 'POST', false);
+        console.log('responce', responce);
+        if (responce.result == 'success') {
+          const loginUrl = createUrl('users', 'login');
+          let params = {
+            email: email,
+          };
+          const responce = await ajaxCall(
+            loginUrl,
+            params,
+            true,
+            'POST',
+            false,
+          );
+          if (responce.success == true) {
+            console.log('responce', responce);
+          }
+        }
+      }
+    } // isShowUsername false
+  };
+
   return (
     <ScrollView
       style={{flex: 1, backgroundColor: '#fff'}}
@@ -117,15 +211,36 @@ const Login = props => {
               loop
               style={{width: 250, height: 250}}
             />
+            <View>
+              <Text style={{color: 'black', fontSize: 30}}>Login</Text>
+            </View>
           </View>
         </View>
       </ImageBackground>
       <View style={styles.bottomView}>
-        <View style={{padding: 40}}>
+        <View style={{paddingTop: 40, paddingLeft: 40, paddingBottom: 20}}>
           <Text style={{color: 'black'}}>Warmly welcome to Ape Iscole</Text>
         </View>
+        <View style={{paddingLeft: 40, flexDirection: 'row'}}>
+          <Text style={{color: 'black'}}>
+            {isHaveAccount
+              ? 'I already have an account'
+              : 'I Dont have account'}
+          </Text>
+          <TouchableOpacity onPress={() => signOut()}>
+            <Text
+              style={{
+                color: 'black',
+                paddingLeft: 10,
+                paddingBottom: 20,
+                color: colors.red,
+              }}>
+              {isHaveAccount ? 'Sign In' : 'Sign Up'}
+            </Text>
+          </TouchableOpacity>
+        </View>
         <View style={{width: width / 1.2, marginLeft: 40}}>
-        <LoadingSpinner showLoading={props.loading}/>
+          <LoadingSpinner showLoading={props.loading} />
           <TextInput
             theme={{
               colors: {
@@ -136,55 +251,56 @@ const Login = props => {
               },
             }}
             style={{backgroundColor: colors.white}}
-            label="Enter your feedback"
+            label="Email"
             //value={this.state.otherText}
-            // onChangeText={text =>
-            //  // this.setState({otherText: text, otherTxtError: ''})
-            // }
+            onChangeText={text => setEmail(text)}
             mode={'outlined'}
             multiline={true}
             numberOfLines={1}
           />
-      
-     <TextInput
-            theme={{
-              colors: {
-                primary: '#7B1B67',
-                underlineColor: 'transparent',
-                // placeholder: colors.npsOutlineTextHeader,
-                // text: colors.npsOutlineText,
-              },
-            }}
-            style={{backgroundColor: colors.white,marginTop:20,marginBottom:30}}
-            label="Enter your feedback"
-            //value={this.state.otherText}
-            // onChangeText={text =>
-            //  // this.setState({otherText: text, otherTxtError: ''})
-            // }
-            mode={'outlined'}
-            multiline={true}
-            numberOfLines={1}
-          />
-
+          {isHaveAccount ? (
+            <TextInput
+              theme={{
+                colors: {
+                  primary: '#7B1B67',
+                  underlineColor: 'transparent',
+                  // placeholder: colors.npsOutlineTextHeader,
+                  // text: colors.npsOutlineText,
+                },
+              }}
+              style={{
+                backgroundColor: colors.white,
+                marginTop: 20,
+                marginBottom: 30,
+              }}
+              label="UserName"
+              //value={this.state.otherText}
+              onChangeText={text => setUserName(text)}
+              mode={'outlined'}
+              multiline={true}
+              numberOfLines={1}
+            />
+          ) : null}
         </View>
         <View
           style={{
             width: width / 2,
             justifyContent: 'center',
             alignSelf: 'center',
+            paddingTop: 20,
           }}>
           <Button
             buttonStyle={{color: colors.primaryColor2}}
-            onPressBtn={signOut}
-            addText={'Login'}
+            onPressBtn={() => clickLogin()}
+            addText={isHaveAccount ? 'Register' : 'Login'}
           />
         </View>
-        <View style={{alignItems:'center',padding:20}}>
+        <View style={{alignItems: 'center', padding: 20}}>
           <View>
-            <Text style={{color:colors.blackColor}}> Or </Text>
+            <Text style={{color: colors.blackColor}}> Or </Text>
           </View>
           <GoogleSigninButton
-            style={{width: width/2, height: 48}}
+            style={{width: width / 2, height: 48}}
             size={GoogleSigninButton.Size.Wide}
             color={GoogleSigninButton.Color.Dark}
             onPress={signIn}

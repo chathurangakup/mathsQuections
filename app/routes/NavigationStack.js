@@ -6,9 +6,11 @@ import Splash from '../screens/onboarding/Splash';
 import Login from '../screens/onboarding/Login';
 
 import SubjectMain from '../screens/subjects/SubjectsMain';
+import GradesMain from '../screens/grades/GradesMain';
+import TitleMain from '../screens/titles/TitleMain';
+import TeacherQuote from '../screens/teacherQuotes/TeacherQuote';
 import QuectionMain from '../screens/quectionsMain/QuectionsMain';
 import PinchScreen from '../screens/pinchScreen/PinchScreen';
-
 
 const onboardingScreens = {
   splash: {screen: Splash},
@@ -17,14 +19,16 @@ const onboardingScreens = {
 };
 
 const signInScreens = {
+  splash: {screen: Splash},
   subjectMain: {screen: SubjectMain},
+  gradesMain: {screen: GradesMain},
+  titleMain: {screen: TitleMain},
+  teacherQuote: {screen: TeacherQuote},
   quectionMain: {screen: QuectionMain},
   pinchScreen: {screen: PinchScreen},
- 
 };
 
 const Stack = createNativeStackNavigator();
-
 
 export const MainStack = () => {
   let screens = [];
@@ -38,11 +42,10 @@ export const MainStack = () => {
         />,
       );
     }
-    console.log('kiki');
   }
   return (
     <Stack.Navigator
-      initialRouteName="subjectMain"
+      initialRouteName="splash"
       screenOptions={{
         gestureEnabled: false,
         headerShown: false,

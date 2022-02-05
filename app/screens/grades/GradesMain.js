@@ -14,17 +14,18 @@ import {connect} from 'react-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
+import {GET_GRADES} from './GradesActionTypes';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
-
-import {GET_SUBJECTS} from './SubjectActionTypes';
 
 const {width, height} = Dimensions.get('window');
 
-const SubjectMain = props => {
+const GradesMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
 
-  const [subjectData, setSubjectData] = useState([]);
+  const [gradesData, setGradesData] = useState([]);
+
+  const {subjectId} = props.route.params;
 
   useEffect(() => {
     Animated.loop(
@@ -44,38 +45,39 @@ const SubjectMain = props => {
   }, []);
 
   useEffect(() => {
-    // console.log("subjectsConfig", props.config);
-    props.getSubjects({});
+    console.log('subId', subjectId);
+
+    props.getGrades({});
     //console.log("subjectsConfig".props.subjectsConfig);
   }, []);
 
   useEffect(() => {
-    console.log('subjectsConfig', props.config);
+    console.log('gradesConfig', props.config);
     if (props.config != undefined) {
-      console.log('subjectsConfig', props.config.data.subjects);
-      setSubjectData(props.config.data.subjects);
+      console.log('gradesConfig', props.config.data.grades);
+      setGradesData(props.config.data.grades);
     }
   }, [props.config]);
 
-  const SubjectItem = ({subjects}) => {
-    console.log('subjects', subjects);
+  const GradesItem = ({grades}) => {
+    console.log('grades', grades);
     return (
       <TouchableOpacity
         activeOpacity={0.0}
         onPress={() => {
-          props.navigation.navigate('gradesMain', {
-            subjectId: subjects.item._id,
+          props.navigation.navigate('titleMain', {
+            subjectId: subjectId,
+            gradesId: grades.item._id,
           });
         }}
         style={styles.subjectItemBtn}>
         <Image
           style={styles.subjectItemImgStyle}
           source={{
-            uri: subjects.item.image,
+            uri: grades.item.image,
           }}
         />
-        <Text style={styles.subjName}>{subjects.item.subjectName}</Text>
-        <Text style={styles.subjSubName}>{subjects.item.subjectSubName}</Text>
+        <Text style={styles.subjName}>{grades.item.grade}</Text>
       </TouchableOpacity>
     );
   };
@@ -98,13 +100,13 @@ const SubjectMain = props => {
       <View>
         <LoadingSpinner showLoading={props.loading} />
         <FlatList
-          data={subjectData}
+          data={gradesData}
           style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
           contentContainerStyle={{alignItems: 'center'}}
           showsVerticalScrollIndicator={false}
           numColumns={2}
           // keyExtractor={item=> item.value}
-          renderItem={item => <SubjectItem subjects={item} />}
+          renderItem={item => <GradesItem grades={item} />}
         />
       </View>
     </SafeAreaView>
@@ -116,7 +118,7 @@ const styles = StyleSheet.create({
   subjectItemBtn: {
     backgroundColor: colors.lightBlue,
     margin: 10,
-    width: width / 2.2,
+    width: width / 2.4,
     height: height / 3.5,
     borderRadius: 10,
     // padding: 15,
@@ -124,7 +126,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   subjectItemImgStyle: {
-    width: width / 2.2,
+    width: width / 2.4,
     height: height / 5,
     borderRadius: 10,
   },
@@ -161,17 +163,17 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    config: state.subjects.subjectsConfig,
+    config: state.grades.gradesConfig,
     loading: state.common.loading,
   };
 };
 
 function mapDispatchToProps(dispatch) {
   return {
-    getSubjects: () => {
-      dispatch({type: GET_SUBJECTS, payload: {}});
+    getGrades: () => {
+      dispatch({type: GET_GRADES, payload: {}});
     },
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubjectMain);
+export default connect(mapStateToProps, mapDispatchToProps)(GradesMain);
