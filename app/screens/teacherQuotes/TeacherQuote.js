@@ -27,7 +27,7 @@ const TeacherQuotes = props => {
   const t = props.translate;
   const [data, setData] = useState([]);
 
-  const {titleId} = props.route.params;
+  const {titleId, subjectId, gradesId} = props.route.params;
 
   useEffect(() => {
     console.log('teachersQ', titleId);
@@ -43,6 +43,17 @@ const TeacherQuotes = props => {
       setData(props.config.data.result);
     }
   }, [props.config]);
+
+  const clickNextBtn = () => {
+    if (data.length != 0) {
+      props.navigation.navigate('quectionMain', {
+        titleId: titleId,
+        subjectId: subjectId,
+        gradesId: gradesId,
+        teacherId: data[0].TeachersInfo[0]._id,
+      });
+    }
+  };
 
   return (
     <ScrollView
@@ -122,7 +133,7 @@ const TeacherQuotes = props => {
           }}>
           <Button
             buttonStyle={{color: colors.primaryColor2}}
-            onPressBtn={() => props.navigation.navigate('quectionMain')}
+            onPressBtn={() => clickNextBtn()}
             addText={'Next'}
           />
         </View>

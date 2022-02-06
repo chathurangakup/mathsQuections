@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   Text,
   View,
@@ -26,14 +26,15 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
 import {Button} from '../../components/Button';
 import Images from '../../config/Images';
-import TextField from '../../components/TextField';
 
 import {quectionsSet} from '../../config/DefaultJson';
+import {GET_QUECTIONS} from './QuectionsMainActionTypes';
 
 const {width, height} = Dimensions.get('window');
 
-const Login = props => {
+const QuectionMain = props => {
   const t = props.translate;
+  const {titleId, subjectId, gradesId, teacherId} = props.route.params;
   const allQuections = quectionsSet;
   const [currentQuectionIndex, setCurrentQuectionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
@@ -45,9 +46,10 @@ const Login = props => {
   // const [imagePath, setImagePath] = useState('');
   const [imageFileName, setImageFileName] = useState('');
   const [imagePath, setImagePath] = useState(Images.NoDataImage);
+  const [quections, setQuections] = useState(allQuections);
 
   const validateAns = selectOption => {
-    let correct_option = allQuections[currentQuectionIndex]['correctAns'];
+    let correct_option = quections[currentQuectionIndex].correctAns;
     setCurrentOptionSelected(selectOption);
     setCorrectOption(correct_option);
     setIsOptionsDisable(true);
@@ -58,7 +60,7 @@ const Login = props => {
   };
 
   const handleNext = () => {
-    if (currentQuectionIndex == allQuections.length) {
+    if (currentQuectionIndex + 1 == quections.length) {
     } else {
       setCurrentQuectionIndex(currentQuectionIndex + 1);
       setCurrentOptionSelected(null);
@@ -73,11 +75,31 @@ const Login = props => {
     }).start();
   };
 
+  useEffect(() => {
+    console.log('teachersQ', titleId);
+    let params = {
+      subjectId: subjectId,
+      gradesId: gradesId,
+      titleId: titleId,
+      teacherId: teacherId,
+    };
+    props.getQuections(params);
+    //console.log("subjectsConfig".props.subjectsConfig);
+  }, []);
+
+  useEffect(() => {
+    console.log('quections', props.config);
+    if (props.config != undefined) {
+      console.log('quections', props.config);
+      setQuections(props.config.data.result);
+    }
+  }, [props.config]);
+
   const renderOptions = () => {
     return (
       <ScrollView>
-        {allQuections[currentQuectionIndex]?.textOrImageAns == 'text'
-          ? allQuections[currentQuectionIndex].answers.map(option => (
+        {quections[currentQuectionIndex]?.answerType == 'Text'
+          ? quections[currentQuectionIndex].ansList.map(option => (
               <TouchableOpacity
                 onPress={() => validateAns(option)}
                 key={option}
@@ -89,17 +111,28 @@ const Login = props => {
                         ? colors.green
                         : option == currentOptionSelected
                         ? colors.red
-                        : colors.secondaryColor1,
+                        : colors.primaryColor1,
                     backgroundColor:
                       option == correctOption
                         ? colors.green1
                         : option == currentOptionSelected
                         ? colors.red + '60'
-                        : colors.secondaryColor1,
+                        : colors.white,
                   },
                 ]}>
                 <View style={{flex: 5}}>
-                  <Text style={{fontSize: 20, color: colors.white}}>
+                  <Text
+                    style={[
+                      {fontSize: 20},
+                      {
+                        color:
+                          option == correctOption
+                            ? colors.white
+                            : option == currentOptionSelected
+                            ? colors.white
+                            : colors.blackColor,
+                      },
+                    ]}>
                     {option}
                   </Text>
                 </View>
@@ -123,7 +156,7 @@ const Login = props => {
                 </View>
               </TouchableOpacity>
             ))
-          : allQuections[currentQuectionIndex].answers.map(option => (
+          : quections[currentQuectionIndex].ansList.map((option, index) => (
               <TouchableOpacity
                 onPress={() => validateAns(option)}
                 key={option}
@@ -145,9 +178,14 @@ const Login = props => {
                   },
                 ]}>
                 <View style={{flex: 5}}>
-                  <Image
-                    style={{width: width / 3, height: height / 5}}
-                    source={{uri: option}}></Image>
+                  {quections[2].imageAnsList.map((opt, index1) =>
+                    index == index1 ? (
+                      <Image
+                        style={{width: width / 1.3, height: 150}}
+                        source={{uri: opt}}
+                      />
+                    ) : null,
+                  )}
                 </View>
 
                 <View style={{flex: 0.5}}>
@@ -175,18 +213,11 @@ const Login = props => {
 
   const renderQuections = () => {
     return (
-      <View>
-        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-          <Text style={styles.quectionTextStyle}>{currentQuectionIndex} </Text>
-          <Text style={{color: colors.white, fontSize: 20, opacity: 0.6}}>
-            {' '}
-            / {allQuections.length}{' '}
-          </Text>
-        </View>
-        <Text style={{color: colors.white, fontSize: 20}}>
-          {allQuections[currentQuectionIndex]?.quection == ''
+      <View style={{paddingBottom: 30}}>
+        <Text style={{color: colors.blackColor, fontSize: 20}}>
+          {quections[currentQuectionIndex]?.quection == ''
             ? ''
-            : allQuections[currentQuectionIndex]?.quection}
+            : quections[currentQuectionIndex]?.quection}
         </Text>
         <View>
           {/* {allQuections[currentQuectionIndex]?.image == '' ? '' :allQuections[currentQuectionIndex]?.quection} */}
@@ -197,17 +228,24 @@ const Login = props => {
                     <Image style={{width: 40, height: 30}} />
                   );
               }
-              
+
               return null;
             })()} */}
-          {allQuections[currentQuectionIndex].image == '' ? (
-            <View></View>
+          {quections[currentQuectionIndex].imageQuection == '' ? (
+            <View />
           ) : (
             <View style={{alignItems: 'center', padding: 10}}>
-              <Image
-                style={{width: width / 2, height: height / 5}}
-                source={{uri: allQuections[currentQuectionIndex].image}}
-              />
+              <TouchableOpacity
+                onPress={() =>
+                  props.navigation.navigate('pinchScreen', {
+                    imgUrl: quections[currentQuectionIndex].imageQuection,
+                  })
+                }>
+                <Image
+                  style={{width: width / 2, height: height / 5}}
+                  source={{uri: quections[currentQuectionIndex].imageQuection}}
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -219,46 +257,50 @@ const Login = props => {
     if (showNextButton) {
       return (
         <View>
-           <View>
-           <TouchableOpacity
-          style={{
-            marginTop: 20,
-            width: '100%',
-            backgroundColor: colors.secondaryColor2,
-            padding: 15,
-            borderRadius: 35,
-          }}
-          onPress={() => handleNext()}>
-          <Text
-            style={{fontSize: 20, color: colors.white, textAlign: 'center'}}>
-            NEXT
-          </Text>
-        </TouchableOpacity>
-           </View>
-           <View style={{flexDirection:'row'}}>
-             <View style={{flex:2}}>
-
-             </View>
-             <View style={{flex:1}}>
-             <TouchableOpacity
-          style={{
-            marginTop: 20,
-            width: '100%',
-            backgroundColor: colors.secondaryColor2,
-            padding: 15,
-            borderRadius: 35,
-          }}
-          onPress={() => onOpen()}>
-          <Text
-            style={{fontSize: 12, color: colors.white, textAlign: 'center'}}>
-            Review
-          </Text>
-        </TouchableOpacity>
-             </View>
-           </View>
+          <View>
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                width: '100%',
+                backgroundColor: colors.secondaryColor2,
+                padding: 15,
+                borderRadius: 35,
+              }}
+              onPress={() => handleNext()}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: colors.white,
+                  textAlign: 'center',
+                }}>
+                NEXT
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 2}} />
+            <View style={{flex: 1}}>
+              <TouchableOpacity
+                style={{
+                  marginTop: 20,
+                  width: '100%',
+                  backgroundColor: colors.secondaryColor2,
+                  padding: 15,
+                  borderRadius: 35,
+                }}
+                onPress={() => onOpen()}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: colors.white,
+                    textAlign: 'center',
+                  }}>
+                  Review
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      
-       
       );
     } else {
       return null;
@@ -267,7 +309,7 @@ const Login = props => {
 
   const [progress, setProgress] = useState(new Animated.Value(0));
   const progressAnim = progress.interpolate({
-    inputRange: [0, allQuections.length],
+    inputRange: [0, quections.length],
     outputRange: ['0%', '100%'],
   });
   const modalizeRef = useRef(null);
@@ -279,51 +321,59 @@ const Login = props => {
 
   const renderProgressBar = () => {
     return (
-      <View
-        style={{
-          width: '100%',
-          height: 20,
-          borderRadius: 20,
-          backgroundColor: '#000020',
-        }}>
-        <Animated.View
-          style={[
-            styles.animatedbarStyle,
-            {width: progressAnim},
-          ]}></Animated.View>
+      <View>
+        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+          <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text>
+          <Text style={{color: colors.blackColor, fontSize: 20, opacity: 0.6}}>
+            {' '}
+            / {quections.length}{' '}
+          </Text>
+        </View>
+
+        <View
+          style={{
+            width: '100%',
+            height: 20,
+            borderRadius: 20,
+            backgroundColor: '#000020',
+          }}>
+          <Animated.View
+            style={[styles.animatedbarStyle, {width: progressAnim}]}
+          />
+        </View>
       </View>
     );
   };
 
   const renderFloatingComponent = () => {
     return (
-     
-        <View
-          style={{
-            flex: 1,
-            flexDirection: 'row',
-            position: 'absolute',
-            bottom: 10,
-            right: 0,
-            width: 70,
-            height: 70,
-            alignSelf: 'flex-end',
-            justifyContent: 'space-between',
-            backgroundColor: colors.primaryColor1,
-            borderWidth: 0,
-            margin: 20,
-            borderRadius: 70,
-            alignItems:'center',
-            justifyContent:'center'
-          }}>
-             <TouchableOpacity onPress={() => setIsVisibleModel(true)}>
-                <MaterialCommunityIcons
-                        name="file-plus-outline"
-                        style={styles.floatIconStyle}
-                      />
-            </TouchableOpacity>
-          </View>
-     
+      <View
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          position: 'absolute',
+          bottom: 10,
+          right: 0,
+          width: 70,
+          height: 70,
+          alignSelf: 'flex-end',
+          justifyContent: 'space-between',
+          backgroundColor: colors.primaryColor1,
+          borderWidth: 0,
+          margin: 20,
+          borderRadius: 70,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <TouchableOpacity onPress={() => setIsVisibleModel(true)}>
+          <MaterialCommunityIcons
+            name="file-plus-outline"
+            style={styles.floatIconStyle}
+          />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -420,17 +470,17 @@ const Login = props => {
     });
   };
 
-  const getPlatformURI =(imagePath)=> {
+  const getPlatformURI = imagePath => {
     let imgSource = imagePath;
-    console.log("imagePath",imagePath)
+    console.log('imagePath', imagePath);
     if (isNaN(imagePath)) {
-        imgSource = { uri:imagePath };
-        if (Platform.OS == 'android') {
-            imgSource.uri =  imgSource.uri;
-        }
+      imgSource = {uri: imagePath};
+      if (Platform.OS == 'android') {
+        imgSource.uri = imgSource.uri;
+      }
     }
-    return imgSource
-}
+    return imgSource;
+  };
 
   const renderModalizeModel = () => {
     return (
@@ -438,25 +488,45 @@ const Login = props => {
         ref={modalizeRef}
         panGestureAnimatedValue={animated}
         FloatingComponent={renderFloatingComponent}>
-        <View >
-          <View style={{flexDirection:'row',paddingLeft:20}}>
-            <View style={{flex:1,}}>
-              <Image style={{color:'black', width:50,height:50}} source={Images.ProfilePic} />
+        <View>
+          <View style={{flexDirection: 'row', paddingLeft: 20}}>
+            <View style={{flex: 1}}>
+              <Image
+                style={{color: 'black', width: 50, height: 50}}
+                source={Images.ProfilePic}
+              />
             </View>
-            <View style={{flex:4,padding:10}}>
-                <Text style={{color:'black'}}>Uditha Chathuranga</Text>
-                <Text style={{color:'black'}}>2022/12/10</Text>
+            <View style={{flex: 4, padding: 10}}>
+              <Text style={{color: 'black'}}>Uditha Chathuranga</Text>
+              <Text style={{color: 'black'}}>2022/12/10</Text>
             </View>
           </View>
           <View>
-            <Text style={{color:'black',paddingLeft:25}}>Uditha Chathuranga</Text>
-            <View style={{padding:10,backgroundColor:colors.primaryColor2,margin:20,alignItems:'center'}}>
-              <TouchableOpacity onPress={()=>props.navigation.navigate('pinchScreen',{imgUrl:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f'})}>
-                 <Image style={{color:'black', width:width/3,height:height/6}} source={{uri:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f'}} />
+            <Text style={{color: 'black', paddingLeft: 25}}>
+              Uditha Chathuranga
+            </Text>
+            <View
+              style={{
+                padding: 10,
+                backgroundColor: colors.primaryColor2,
+                margin: 20,
+                alignItems: 'center',
+              }}>
+              <TouchableOpacity
+                onPress={() =>
+                  props.navigation.navigate('pinchScreen', {
+                    imgUrl:
+                      'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f',
+                  })
+                }>
+                <Image
+                  style={{color: 'black', width: width / 3, height: height / 6}}
+                  source={{
+                    uri: 'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f',
+                  }}
+                />
               </TouchableOpacity>
-              
             </View>
-           
           </View>
         </View>
       </Modalize>
@@ -464,98 +534,119 @@ const Login = props => {
   };
 
   const renderaddCommentModel = () => {
-     let imgSource = getPlatformURI(imagePath);
-    return(
+    let imgSource = getPlatformURI(imagePath);
+    return (
       <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisibleModel}
-      onRequestClose={() => {
-        setIsVisibleModel(false);
-      }}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View>
-             <View style={{alignItems:'center'}}>
-              <View style={styles.textAreaContainer} >
-                <TextInput
-                  style={styles.textArea}
-                  underlineColorAndroid="transparent"
-                  placeholder="Type something"
-                  placeholderTextColor="grey"
-                  numberOfLines={10}
-                  multiline={true}
-                />
-              </View>
-                <View style={{flexDirection:'row'}}>
-                   <Image style={{color:'black', width:width/2,height:height/5,borderColor:'black',borderWidth:1}} source={imgSource} />
-                   <Text style={{color:'black',alignSelf:'center'}}> (Optional)</Text>
+        animationType="slide"
+        transparent={true}
+        visible={isVisibleModel}
+        onRequestClose={() => {
+          setIsVisibleModel(false);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View>
+              <View style={{alignItems: 'center'}}>
+                <View style={styles.textAreaContainer}>
+                  <TextInput
+                    style={styles.textArea}
+                    underlineColorAndroid="transparent"
+                    placeholder="Type something"
+                    placeholderTextColor="grey"
+                    numberOfLines={10}
+                    multiline={true}
+                  />
                 </View>
-              
-                
+                <View style={{flexDirection: 'row'}}>
+                  <Image
+                    style={{
+                      color: 'black',
+                      width: width / 2,
+                      height: height / 5,
+                      borderColor: 'black',
+                      borderWidth: 1,
+                    }}
+                    source={imgSource}
+                  />
+                  <Text style={{color: 'black', alignSelf: 'center'}}>
+                    {' '}
+                    (Optional)
+                  </Text>
+                </View>
               </View>
-            
 
-            <View style={styles.eightyWidthStyle}>
-              <TouchableOpacity
-                onPress={chooseCamera}
-                style={{height: 30, backgroundColor: '#000', margin: 10}}>
-                <Text>Choose Camera</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={chooseLib}
-                style={{height: 30, backgroundColor: '#000', margin: 10}}>
-                <Text>Choose Library</Text>
-              </TouchableOpacity>
+              <View style={styles.eightyWidthStyle}>
+                <TouchableOpacity
+                  onPress={chooseCamera}
+                  style={{height: 30, backgroundColor: '#000', margin: 10}}>
+                  <Text>Choose Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={chooseLib}
+                  style={{height: 30, backgroundColor: '#000', margin: 10}}>
+                  <Text>Choose Library</Text>
+                </TouchableOpacity>
+              </View>
+              <Button
+                buttonStyle={{color: colors.primaryColor2}}
+                addText={'Add Comment'}
+                onPressBtn={() => getUrl(imagePath, imageFileName)}
+              />
+
+              <View style={{alignItems: 'center'}}>
+                <Text style={{color: 'black'}}>Or</Text>
+                <TouchableOpacity onPress={() => setIsVisibleModel(false)}>
+                  <Text style={{color: 'black'}}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Button 
-               buttonStyle={{color: colors.primaryColor2}}
-               addText={"Add Comment"}
-             onPressBtn={()=>  getUrl(imagePath,imageFileName)}
-            />
-
-          <View style={{alignItems:'center'}}>
-            <Text style={{color:'black'}}>Or</Text>
-            <TouchableOpacity onPress={()=>  setIsVisibleModel(false)}>
-              <Text style={{color:'black'}}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          
           </View>
         </View>
-      </View>
-    </Modal>
-    )
-
-  }
+      </Modal>
+    );
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>
       <ImageBackground
-        source={Images.Background}
+        source={Images.Welcome}
         resizeMode="cover"
         style={styles.mainComp}>
-        {renderProgressBar()}
+        <View style={{marginTop: 60, marginLeft: 20, marginRight: 20}}>
+          {renderProgressBar()}
+        </View>
 
-        {renderQuections()}
+        <View style={styles.bottomView}>
+          <ScrollView>
+            {renderQuections()}
 
-        {renderOptions()}
+            {renderOptions()}
 
-        {renderNextButton()}
+            {renderNextButton()}
 
-        {renderModalizeModel()}
+            {renderModalizeModel()}
 
-        {renderaddCommentModel()}
+            {renderaddCommentModel()}
+          </ScrollView>
+        </View>
       </ImageBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  bottomView: {
+    flex: 1,
+    backgroundColor: 'white',
+    top: 40,
+    padding: 30,
+    borderTopStartRadius: 60,
+    borderTopEndRadius: 60,
+  },
   mainComp: {
     flex: 1,
-    paddingVertical: 40,
-    paddingHorizontal: 16,
+    // paddingVertical: 40,
+    // paddingHorizontal: 16,
     backgroundColor: colors.primaryColor2,
     position: 'relative',
   },
@@ -617,8 +708,8 @@ const styles = StyleSheet.create({
   },
   modalView: {
     marginLeft: 20,
-    marginRight:20,
- 
+    marginRight: 20,
+
     backgroundColor: 'white',
     borderRadius: 20,
     padding: 10,
@@ -652,25 +743,34 @@ const styles = StyleSheet.create({
     borderColor: '#777',
     borderWidth: 1,
     padding: 5,
-    borderRadius:10,
-    margin:10
+    borderRadius: 10,
+    margin: 10,
   },
   textArea: {
     height: 150,
-    width: width/1.5,
-    justifyContent: "flex-start",
-    color:'black'
+    width: width / 1.5,
+    justifyContent: 'flex-start',
+    color: 'black',
   },
-  floatIconStyle:{
-    color: colors.white, fontSize: 30
-  }
-
+  floatIconStyle: {
+    color: colors.white,
+    fontSize: 30,
+  },
 });
 
 const mapStateToProps = (state, props) => {
   return {
     translate: getTranslate(state.localize),
+    config: state.quectionmain.quectionsConfig,
   };
 };
 
-export default connect(mapStateToProps)(Login);
+function mapDispatchToProps(dispatch) {
+  return {
+    getQuections: payload => {
+      dispatch({type: GET_QUECTIONS, payload: payload});
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuectionMain);

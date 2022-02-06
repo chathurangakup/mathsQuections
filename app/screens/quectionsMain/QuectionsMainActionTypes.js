@@ -1,0 +1,2 @@
+export const GET_QUECTIONS = 'GET_QUECTIONS';
+export const GET_QUECTIONS_OK = 'GET_QUECTIONS_OK';
