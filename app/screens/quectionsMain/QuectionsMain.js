@@ -123,7 +123,7 @@ const QuectionMain = props => {
                 <View style={{flex: 5}}>
                   <Text
                     style={[
-                      {fontSize: 20},
+                      {fontSize: 15},
                       {
                         color:
                           option == correctOption
@@ -214,7 +214,7 @@ const QuectionMain = props => {
   const renderQuections = () => {
     return (
       <View style={{paddingBottom: 30}}>
-        <Text style={{color: colors.blackColor, fontSize: 20}}>
+        <Text style={{color: colors.blackColor, fontSize: 15}}>
           {quections[currentQuectionIndex]?.quection == ''
             ? ''
             : quections[currentQuectionIndex]?.quection}

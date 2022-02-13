@@ -3,6 +3,8 @@ import {View, Dimensions, Modal, Image, Text} from 'react-native';
 
 import ReactNativeZoomableView from '@dudigital/react-native-zoomable-view/src/ReactNativeZoomableView';
 
+import {AppBar} from '../../components/AppBar';
+
 const {width, height} = Dimensions.get('window');
 
 const Pinch = props => {
@@ -23,6 +25,7 @@ const Pinch = props => {
   ];
   return (
     <View style={{flex: 1}}>
+      <AppBar navigation={props.navigation} />
       <ReactNativeZoomableView
         maxZoom={1.5}
         minZoom={0.5}

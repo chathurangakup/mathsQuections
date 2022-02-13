@@ -19,30 +19,29 @@ import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
-import {GET_TEACHERS_QUOTES} from './TeachersQuotesActionTypes';
-import {AppBar} from '../../components/AppBar';
+// import {GET_TEACHERS_QUOTES} from './TeachersQuotesActionTypes';
 
 const {width, height} = Dimensions.get('window');
 
-const TeacherQuotes = props => {
+const Profile = props => {
   const t = props.translate;
   const [data, setData] = useState([]);
 
   const {titleId, subjectId, gradesId} = props.route.params;
 
   useEffect(() => {
-    console.log('teachersQ', titleId);
-    let params = {titleId: titleId};
-    props.getTeachersQuotes(params);
+    // console.log('teachersQ', titleId);
+    // let params = {titleId: titleId};
+    // props.getTeachersQuotes(params);
     //console.log("subjectsConfig".props.subjectsConfig);
   }, []);
 
   useEffect(() => {
     console.log('teachersQ', props.config);
-    if (props.config != undefined) {
-      console.log('teachersQ', props.config);
-      setData(props.config.data.result);
-    }
+    // if (props.config != undefined) {
+    //   console.log('teachersQ', props.config);
+    //   setData(props.config.data.result);
+    // }
   }, [props.config]);
 
   const clickNextBtn = () => {
@@ -72,7 +71,6 @@ const TeacherQuotes = props => {
           }
           style={{height: height / 2.5}}>
           <View>
-            <AppBar navigation={props.navigation} />
             <View
               style={{
                 alignItems: 'flex-start',
@@ -90,7 +88,7 @@ const TeacherQuotes = props => {
                     fontWeight: 'bold',
                     paddingLeft: 10,
                   }}>
-                  {data != '' ? data[0].TeachersInfo[0].username : ''}
+                  {/* {data != '' ? data[0].TeachersInfo[0].username : ''} */}
                 </Text>
                 <Text
                   style={{
@@ -100,7 +98,7 @@ const TeacherQuotes = props => {
                     width: width / 1.5,
                     paddingLeft: 10,
                   }}>
-                  {data != '' ? data[0].TeachersInfo[0].designation : ''}
+                  {/* {data != '' ? data[0].TeachersInfo[0].designation : ''} */}
                 </Text>
               </View>
             </View>
@@ -158,17 +156,16 @@ const mapStateToProps = (state, props) => {
   return {
     translate: getTranslate(state.localize),
     default: state.common.defaultResult,
-    config: state.teacherquote.teachersQuotesConfig,
     loading: state.common.loading,
   };
 };
 
-function mapDispatchToProps(dispatch) {
-  return {
-    getTeachersQuotes: payload => {
-      dispatch({type: GET_TEACHERS_QUOTES, payload: payload});
-    },
-  };
-}
+// function mapDispatchToProps(dispatch) {
+//   return {
+//     getTeachersQuotes: payload => {
+//       dispatch({type: GET_TEACHERS_QUOTES, payload: payload});
+//     },
+//   };
+// }
 
-export default connect(mapStateToProps, mapDispatchToProps)(TeacherQuotes);
+export default connect(mapStateToProps)(Profile);

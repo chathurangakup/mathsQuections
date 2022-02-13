@@ -9,13 +9,16 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import {connect} from 'react-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {GET_GRADES} from './GradesActionTypes';
+import {Search} from '../../components/Search';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
+import {AppBar} from '../../components/AppBar';
 
 const {width, height} = Dimensions.get('window');
 
@@ -42,13 +45,13 @@ const GradesMain = props => {
         }),
       ]),
     ).start();
-  }, []);
+  }, [animated]);
 
   useEffect(() => {
-    console.log('subId', subjectId);
-
-    props.getGrades({});
-    //console.log("subjectsConfig".props.subjectsConfig);
+    let params = {
+      subjectId: subjectId,
+    };
+    props.getGrades(params, '');
   }, []);
 
   useEffect(() => {
@@ -82,8 +85,17 @@ const GradesMain = props => {
     );
   };
 
+  const searchText = text => {
+    let params = {
+      subjectId: subjectId,
+    };
+    console.log(text);
+    props.getGrades(params, text);
+  };
+
   return (
     <SafeAreaView style={styles.root}>
+      <AppBar navigation={props.navigation} />
       <View style={styles.header}>
         <Image source={Images.SubjectTeach} style={styles.imgStyles} />
 
@@ -92,22 +104,29 @@ const GradesMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <Text style={{color: colors.blackColor, top: 40, left: 15}}>
+        <Text style={{color: colors.blackColor, left: 15}}>
           Good Morning Uditha
         </Text>
+        <Search onChange={text => searchText(text)} />
       </View>
 
       <View>
         <LoadingSpinner showLoading={props.loading} />
-        <FlatList
-          data={gradesData}
-          style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
-          contentContainerStyle={{alignItems: 'center'}}
-          showsVerticalScrollIndicator={false}
-          numColumns={2}
-          // keyExtractor={item=> item.value}
-          renderItem={item => <GradesItem grades={item} />}
-        />
+        {gradesData.length == 0 ? (
+          <View style={{alignItems: 'center', paddingTop: 40}}>
+            <Text style={{color: colors.blackColor}}>Not Data Found</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={gradesData}
+            style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
+            contentContainerStyle={{alignItems: 'center'}}
+            showsVerticalScrollIndicator={false}
+            numColumns={2}
+            // keyExtractor={item=> item.value}
+            renderItem={item => <GradesItem grades={item} />}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -170,8 +189,8 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getGrades: () => {
-      dispatch({type: GET_GRADES, payload: {}});
+    getGrades: (payloadObj, search) => {
+      dispatch({type: GET_GRADES, payload: payloadObj, searchPharam: search});
     },
   };
 }

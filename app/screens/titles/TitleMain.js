@@ -16,6 +16,8 @@ import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {GET_TITLES} from './TitleActionTypes';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
+import {Search} from '../../components/Search';
+import {AppBar} from '../../components/AppBar';
 
 const {width, height} = Dimensions.get('window');
 
@@ -50,7 +52,7 @@ const GradesMain = props => {
       subjectId: subjectId,
       gradesId: gradesId,
     };
-    props.getTitles(params);
+    props.getTitles(params, '');
     //console.log("subjectsConfig".props.subjectsConfig);
   }, []);
 
@@ -91,8 +93,17 @@ const GradesMain = props => {
     );
   };
 
+  const searchText = text => {
+    let params = {
+      subjectId: subjectId,
+      gradesId: gradesId,
+    };
+    props.getTitles(params, text);
+  };
+
   return (
     <SafeAreaView style={styles.root}>
+      <AppBar navigation={props.navigation} />
       <View style={styles.header}>
         <Image source={Images.SubjectTeach} style={styles.imgStyles} />
 
@@ -104,6 +115,7 @@ const GradesMain = props => {
         <Text style={{color: colors.blackColor, top: 40, left: 15}}>
           Good Morning Uditha
         </Text>
+        <Search onChange={text => searchText(text)} />
       </View>
 
       <View>
@@ -190,8 +202,8 @@ const mapStateToProps = state => {
 
 function mapDispatchToProps(dispatch) {
   return {
-    getTitles: payloadObj => {
-      dispatch({type: GET_TITLES, payload: payloadObj});
+    getTitles: (payloadObj, search) => {
+      dispatch({type: GET_TITLES, payload: payloadObj, searchPharam: search});
     },
   };
 }

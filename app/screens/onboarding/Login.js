@@ -31,6 +31,7 @@ import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
+import {LOGIN} from '../../actyonTypes/Common';
 
 const {width, height} = Dimensions.get('window');
 
@@ -149,6 +150,8 @@ const Login = props => {
   };
 
   const clickLogin = async () => {
+    //  props.changeLoginStatus(true);
+    //  props.navigation.navigate('subjectMain');
     const url = createUrl('users', 'signup');
     let params = {
       username: userName,
@@ -187,11 +190,19 @@ const Login = props => {
           );
           if (responce.success == true) {
             console.log('responce', responce);
+            setJwttoken(responce.token);
+            props.changeLoginStatus(true);
           }
         }
       }
     } // isShowUsername false
   };
+
+  useEffect(() => {
+    if (props.isLoggedIn) {
+      props.navigation.navigate('subjectMain');
+    }
+  }, [props.isLoggedIn]);
 
   return (
     <ScrollView
@@ -327,7 +338,16 @@ const mapStateToProps = (state, props) => {
     translate: getTranslate(state.localize),
     default: state.common.defaultResult,
     loading: state.common.loading,
+    isLoggedIn: state.common.isLoggedIn,
   };
 };
 
-export default connect(mapStateToProps)(Login);
+function mapDispatchToProps(dispatch) {
+  return {
+    changeLoginStatus: isLoggin => {
+      dispatch({type: LOGIN, payload: isLoggin});
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

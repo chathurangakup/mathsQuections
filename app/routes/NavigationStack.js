@@ -11,6 +11,7 @@ import TitleMain from '../screens/titles/TitleMain';
 import TeacherQuote from '../screens/teacherQuotes/TeacherQuote';
 import QuectionMain from '../screens/quectionsMain/QuectionsMain';
 import PinchScreen from '../screens/pinchScreen/PinchScreen';
+import ProfileMain from '../screens/profile/ProfileMain';
 
 const onboardingScreens = {
   splash: {screen: Splash},
@@ -26,6 +27,7 @@ const signInScreens = {
   teacherQuote: {screen: TeacherQuote},
   quectionMain: {screen: QuectionMain},
   pinchScreen: {screen: PinchScreen},
+  profileMain: {screen: ProfileMain},
 };
 
 const Stack = createNativeStackNavigator();
@@ -45,7 +47,7 @@ export const MainStack = () => {
   }
   return (
     <Stack.Navigator
-      initialRouteName="splash"
+      initialRouteName="subjectMain"
       screenOptions={{
         gestureEnabled: false,
         headerShown: false,

@@ -4,15 +4,15 @@ import {GET_GRADES, GET_GRADES_OK} from './GradesActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
 
-const getGrades = function* () {
+const getGrades = function* (payload) {
   const language = yield getLanguageId();
   const updateController = 'grades' + language;
 
   const response = yield ajaxCall(
-    createUrl(updateController, 'allGrades'),
-    {},
+    createUrl(updateController, 'allGrades/' + payload.searchPharam),
+    payload.payload,
     true,
-    'GET',
+    'POST',
     true,
   );
   yield put({

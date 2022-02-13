@@ -11,11 +11,13 @@ import {
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as Animatable from 'react-native-animatable';
+import {connect} from 'react-redux';
 
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
 import {colors} from '../../config/styles';
 import {getJwttoken} from '../../lib/Utils';
+import {LOGIN} from '../../actyonTypes/Common';
 
 const {width} = Dimensions.get('window');
 
@@ -34,11 +36,21 @@ const Splash = props => {
     return () => clearTimeout(timer);
   }, []);
 
+  // useEffect(() => {
+  //   if (props.isLoggedIn) {
+  //     props.navigation.navigate('subjectMain');
+  //   }
+  // }, []);
+
   const clickNextBtn = async () => {
     const token = await getJwttoken();
     console.log('token1', token);
+
     if (token != null) {
-      props.navigation.navigate('subjectMain');
+      props.changeLoginStatus(true);
+      if (props.isLoggedIn) {
+        props.navigation.navigate('subjectMain');
+      }
     } else {
       props.navigation.navigate('languageChange');
     }
@@ -172,4 +184,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Splash;
+const mapStateToProps = state => {
+  return {
+    isLoggedIn: state.common.isLoggedIn,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    changeLoginStatus: isLoggin => {
+      dispatch({type: LOGIN, payload: isLoggin});
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Splash);
