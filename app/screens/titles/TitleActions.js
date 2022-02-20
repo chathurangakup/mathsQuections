@@ -11,7 +11,10 @@ const getTitles = function* (payload) {
   console.log('payload', payload);
 
   const response = yield ajaxCall(
-    createUrl(updateController, 'releventTitlesAll/' + payload.searchPharam),
+    createUrl(
+      updateController,
+      'releventTitlesStudents/' + payload.searchPharam,
+    ),
     payload.payload,
     true,
     'POST',

@@ -15,8 +15,11 @@ import {connect} from 'react-redux';
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
+import {AppBar} from '../../components/AppBar';
 
 import {GET_SUBJECTS} from './SubjectActionTypes';
+import {GET_USER_INFO} from '../profile/ProfileActionsTypes';
+import {getUserId} from '../../lib/Utils';
 
 const {width, height} = Dimensions.get('window');
 
@@ -25,28 +28,35 @@ const SubjectMain = props => {
   const duration = 1000;
 
   const [subjectData, setSubjectData] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
+
+  // useEffect(() => {
+  //   Animated.loop(
+  //     Animated.sequence([
+  //       Animated.timing(animated, {
+  //         toValue: 20,
+  //         duration: duration,
+  //         useNativeDriver: true,
+  //       }),
+  //       Animated.timing(animated, {
+  //         toValue: 0,
+  //         duration: duration,
+  //         useNativeDriver: true,
+  //       }),
+  //     ]),
+  //   ).start();
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
+  const getUserInfoFunction = async () => {
+    const userId = await getUserId();
+    props.getUserInfo(userId);
+  };
 
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(animated, {
-          toValue: 20,
-          duration: duration,
-          useNativeDriver: true,
-        }),
-        Animated.timing(animated, {
-          toValue: 0,
-          duration: duration,
-          useNativeDriver: true,
-        }),
-      ]),
-    ).start();
-  }, []);
-
-  useEffect(() => {
-    // console.log("subjectsConfig", props.config);
     props.getSubjects({});
-    //console.log("subjectsConfig".props.subjectsConfig);
+    getUserInfoFunction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -80,8 +90,22 @@ const SubjectMain = props => {
     );
   };
 
+  useEffect(() => {
+    if (props.userinfo !== undefined) {
+      setUserInfo(props.userinfo.data.userData);
+      console.log('props.userinfo.userData', props.userinfo.data);
+    }
+  }, [props.userinfo]);
+
   return (
     <SafeAreaView style={styles.root}>
+      <AppBar
+        navigation={props.navigation}
+        isShowBack={false}
+        profilePicImage={
+          userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
+        }
+      />
       <View style={styles.header}>
         <Image source={Images.SubjectTeach} style={styles.imgStyles} />
 
@@ -163,6 +187,7 @@ const mapStateToProps = state => {
   return {
     config: state.subjects.subjectsConfig,
     loading: state.common.loading,
+    userinfo: state.profiledata.profileInfoConfig,
   };
 };
 
@@ -170,6 +195,12 @@ function mapDispatchToProps(dispatch) {
   return {
     getSubjects: () => {
       dispatch({type: GET_SUBJECTS, payload: {}});
+    },
+    getUserInfo: userIdData => {
+      dispatch({
+        type: GET_USER_INFO,
+        userId: userIdData,
+      });
     },
   };
 }

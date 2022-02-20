@@ -7,6 +7,7 @@ import Grades from '../screens/grades/GradesReducers';
 import Titles from '../screens/titles/TitleReducers';
 import TeacherQuote from '../screens/teacherQuotes/TeachersQuotesReducers';
 import QuectionMain from '../screens/quectionsMain/QuectionsMainReducers';
+import ProfileMain from '../screens/profile/ProfileReducers';
 
 export default combineReducers({
   localize: localizeReducer,
@@ -16,4 +17,5 @@ export default combineReducers({
   titles: Titles,
   teacherquote: TeacherQuote,
   quectionmain: QuectionMain,
+  profiledata: ProfileMain,
 });

@@ -31,6 +31,16 @@ export const getJwttoken = async () => {
   return token;
 };
 
+export const setUserId = async userId => {
+  await AsyncStorage.setItem('userId', userId);
+};
+
+export const getUserId = async () => {
+  const userId = await AsyncStorage.getItem('userId');
+  console.log('userId', userId);
+  return userId;
+};
+
 export const setLanguageId = async id => {
   await AsyncStorage.setItem('languageId', id);
 };
@@ -216,6 +226,12 @@ export const ajaxCall = async (
 export const showErrorSlideUpPanel = (
   title,
   msg,
+  twoButtons,
+  imgType,
+  leftBtnText,
+  onPressLeft = () => {},
+  rightBtnText,
+  onPressRight = () => {},
   // okFn = () => {},
   // okText = 'button.ok',
   // btnCancel = () => {},
@@ -227,6 +243,12 @@ export const showErrorSlideUpPanel = (
       visible: true,
       title,
       msg,
+      twoButtons,
+      imgType,
+      leftBtnText,
+      onPressLeft,
+      rightBtnText,
+      onPressRight,
       // okText,
       // okFn,
       // btnCancel,

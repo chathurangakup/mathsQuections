@@ -7,19 +7,22 @@ import {
   ImageBackground,
   Dimensions,
   StyleSheet,
+  Image,
+  Keyboard,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {getTranslate} from 'react-localize-redux';
-import LottieView from 'lottie-react-native';
-
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {TextInput} from 'react-native-paper';
 
-import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
-
+import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
-// import {GET_TEACHERS_QUOTES} from './TeachersQuotesActionTypes';
+import {AppBar} from '../../components/AppBar';
+import {showErrorSlideUpPanel, setJwttoken, setUserId} from '../../lib/Utils';
+import {LOGOUT_IMAGE} from '../../config/settings';
+import {LOGOUT} from '../../actyonTypes/Common';
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,7 +30,7 @@ const Profile = props => {
   const t = props.translate;
   const [data, setData] = useState([]);
 
-  const {titleId, subjectId, gradesId} = props.route.params;
+  // const {titleId, subjectId, gradesId} = props.route.params;
 
   useEffect(() => {
     // console.log('teachersQ', titleId);
@@ -46,84 +49,176 @@ const Profile = props => {
 
   const clickNextBtn = () => {
     if (data.length != 0) {
-      props.navigation.navigate('quectionMain', {
-        titleId: titleId,
-        subjectId: subjectId,
-        gradesId: gradesId,
-        teacherId: data[0].TeachersInfo[0]._id,
-      });
     }
   };
 
+  const clickLogout = async () => {
+    setJwttoken('');
+    setUserId('');
+    props.changeLoginStatus(false);
+    try {
+      await GoogleSignin.signOut();
+      props.navigation.navigate('splash');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onPressLogout = () => {
+    showErrorSlideUpPanel(
+      'Logout',
+      'Are you sure, you want to logout?',
+      true,
+      LOGOUT_IMAGE,
+      'CANCEL',
+      () => {},
+      'Logout',
+      () => clickLogout(),
+    );
+  };
+
   return (
-    <ScrollView
+    <View
       style={{flex: 1, backgroundColor: '#fff'}}
       showsHorizontalScrollIndicator={false}>
-      <TouchableOpacity
-        onPress={() =>
-          props.navigation.navigate('pinchScreen', {
-            imgUrl: data != '' ? data[0].TeachersInfo[0].image : null,
-          })
-        }>
-        <ImageBackground
-          source={
-            data != '' ? {uri: data[0].TeachersInfo[0].image} : Images.Welcome
-          }
-          style={{height: height / 2.5}}>
-          <View>
-            <View
-              style={{
-                alignItems: 'flex-start',
-                justifyContent: 'flex-start',
-                top: height / 4,
-                marginLeft: 20,
-                marginRight: 40,
-                backgroundColor: colors.white,
-              }}>
-              <View>
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 30,
-                    fontWeight: 'bold',
-                    paddingLeft: 10,
-                  }}>
-                  {/* {data != '' ? data[0].TeachersInfo[0].username : ''} */}
-                </Text>
-                <Text
-                  style={{
-                    color: 'black',
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                    width: width / 1.5,
-                    paddingLeft: 10,
-                  }}>
-                  {/* {data != '' ? data[0].TeachersInfo[0].designation : ''} */}
-                </Text>
-              </View>
+      <AppBar navigation={props.navigation} isShowProfile={false} />
+      <ImageBackground
+        source={
+          data != '' ? {uri: data[0].TeachersInfo[0].image} : Images.Welcome
+        }
+        style={{height: height / 3}}>
+        <View style={{alignItems: 'center', marginTop: 60}}>
+          <TouchableOpacity onPress={() => onPressProfile()}>
+            <Image
+              style={styles.image}
+              source={
+                props.profilePicImage == null
+                  ? Images.ProfilePic
+                  : props.profilePicImage
+              }
+            />
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
+
+      <View style={styles.bottomView}>
+        <ScrollView>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 2}} />
+            <View style={{flex: 0.5, paddingTop: 40, paddingRight: 20}}>
+              <TouchableOpacity onPress={() => onPressLogout()}>
+                <Text style={{color: 'black'}}>Logout</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </ImageBackground>
-      </TouchableOpacity>
-      <View style={styles.bottomView}>
-        <View style={{paddingTop: 40, paddingLeft: 40, paddingBottom: 20}}>
-          <Text style={{color: 'black'}}>Warmly welcome to Ape Iscole</Text>
-        </View>
-        <View
-          style={{
-            paddingTop: 40,
-            paddingLeft: 40,
-            paddingBottom: 20,
-            paddingRight: 40,
-          }}>
-          <Text style={{color: 'black'}}>
-            {data != '' ? data[0].quote : ''}
-          </Text>
-        </View>
+          <View
+            style={{
+              paddingTop: 40,
+              paddingLeft: 40,
+              paddingBottom: 20,
+              paddingRight: 40,
+            }}>
+            <Text style={{color: 'black'}}>Email: </Text>
+            <View style={{padding: 10}} />
+            <Text style={{color: 'black'}}>Role: </Text>
+            <View style={{padding: 10}} />
+            <TextInput
+              onSubmit={Keyboard.dismiss}
+              theme={{
+                colors: {
+                  primary: '#7B1B67',
+                  underlineColor: 'transparent',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  // placeholder: colors.npsOutlineTextHeader,
+                  // text: colors.npsOutlineText,
+                },
+              }}
+              style={{backgroundColor: colors.white}}
+              label="Username"
+              //value={this.state.otherText}
+              // onChangeText={text => setEmail(text)}
+              mode={'outlined'}
+              multiline={false}
+              onBlur={() => alert('kk')}
+              numberOfLines={1}
+            />
+            <View style={{padding: 10}} />
 
-        <View style={{width: width / 1.2, marginLeft: 40}}>
-          <LoadingSpinner showLoading={props.loading} />
-        </View>
+            <TextInput
+              onSubmit={Keyboard.dismiss}
+              theme={{
+                colors: {
+                  primary: '#7B1B67',
+                  underlineColor: 'transparent',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  // placeholder: colors.npsOutlineTextHeader,
+                  // text: colors.npsOutlineText,
+                },
+              }}
+              style={{backgroundColor: colors.white}}
+              label="Email"
+              //value={this.state.otherText}
+              // onChangeText={text => setEmail(text)}
+              mode={'outlined'}
+              multiline={false}
+              onBlur={() => alert('kk')}
+              numberOfLines={1}
+            />
+
+            <View style={{padding: 10}} />
+
+            <TextInput
+              onSubmit={Keyboard.dismiss}
+              theme={{
+                colors: {
+                  primary: '#7B1B67',
+                  underlineColor: 'transparent',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  // placeholder: colors.npsOutlineTextHeader,
+                  // text: colors.npsOutlineText,
+                },
+              }}
+              style={{backgroundColor: colors.white}}
+              label="Email"
+              //value={this.state.otherText}
+              // onChangeText={text => setEmail(text)}
+              mode={'outlined'}
+              multiline={false}
+              onBlur={() => alert('kk')}
+              numberOfLines={1}
+            />
+            <View style={{padding: 10}} />
+
+            <TextInput
+              onSubmit={Keyboard.dismiss}
+              theme={{
+                colors: {
+                  primary: '#7B1B67',
+                  underlineColor: 'transparent',
+                  marginTop: 5,
+                  marginBottom: 5,
+                  // placeholder: colors.npsOutlineTextHeader,
+                  // text: colors.npsOutlineText,
+                },
+              }}
+              style={{backgroundColor: colors.white}}
+              label="Email"
+              //value={this.state.otherText}
+              // onChangeText={text => setEmail(text)}
+              mode={'outlined'}
+              multiline={false}
+              onBlur={() => alert('kk')}
+              numberOfLines={1}
+            />
+          </View>
+
+          <View style={{width: width / 1.2, marginLeft: 40}}>
+            <LoadingSpinner showLoading={props.loading} />
+          </View>
+        </ScrollView>
         <View
           style={{
             width: width / 2,
@@ -134,19 +229,25 @@ const Profile = props => {
           <Button
             buttonStyle={{color: colors.primaryColor2}}
             onPressBtn={() => clickNextBtn()}
-            addText={'Next'}
+            addText={'Update'}
           />
         </View>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  image: {
+    color: 'black',
+    width: width / 3,
+    height: width / 3,
+    borderRadius: width / 3,
+  },
   bottomView: {
     flex: 1,
     backgroundColor: 'white',
-    bottom: 40,
+    bottom: 30,
     borderTopStartRadius: 60,
     borderTopEndRadius: 60,
   },
@@ -157,15 +258,16 @@ const mapStateToProps = (state, props) => {
     translate: getTranslate(state.localize),
     default: state.common.defaultResult,
     loading: state.common.loading,
+    userinfo: state.profiledata.profileInfoConfig,
   };
 };
 
-// function mapDispatchToProps(dispatch) {
-//   return {
-//     getTeachersQuotes: payload => {
-//       dispatch({type: GET_TEACHERS_QUOTES, payload: payload});
-//     },
-//   };
-// }
+function mapDispatchToProps(dispatch) {
+  return {
+    changeLoginStatus: isLoggin => {
+      dispatch({type: LOGOUT, payload: isLoggin});
+    },
+  };
+}
 
-export default connect(mapStateToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

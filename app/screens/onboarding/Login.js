@@ -26,6 +26,7 @@ import {
   createUrl,
   ajaxCall,
   setJwttoken,
+  setUserId,
 } from '../../lib/Utils';
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
@@ -70,24 +71,6 @@ const Login = props => {
   const [userName, setUserName] = useState(null);
   const [isHaveAccount, setIsHaveAccount] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(async () => {
-    console.log('loading', props.loading);
-    // const url = createUrl('users', 'userRole/teacher');
-    const param = {
-      userName: userName,
-      email: email,
-      phoneno: '255652',
-      designation: 'student',
-      role: 'student',
-      date: '2022/1/15',
-      image: '',
-    };
-    //const responce = await ajaxCall(url, param, true, 'GET');
-
-    console.log('createUrl');
-  }, []);
-
   const setUser = () => {
     setConfig();
   };
@@ -119,10 +102,19 @@ const Login = props => {
         let params = {
           email: userInfo.user.email,
         };
-        const responce = await ajaxCall(loginUrl, params, true, 'POST', false);
-        if (responce.success == true) {
-          console.log('responce', responce);
-          setJwttoken(responce.token);
+        const responceLogin = await ajaxCall(
+          loginUrl,
+          params,
+          true,
+          'POST',
+          false,
+        );
+        // eslint-disable-next-line eqeqeq
+        if (responceLogin.success == true) {
+          console.log('responce', responceLogin.userId);
+          setJwttoken(responceLogin.token);
+          setUserId(responceLogin.userId);
+          props.changeLoginStatus(true);
           props.navigation.navigate('subjectMain');
         }
       }
@@ -191,6 +183,7 @@ const Login = props => {
           if (responce.success == true) {
             console.log('responce', responce);
             setJwttoken(responce.token);
+            setUserId(responce.userId);
             props.changeLoginStatus(true);
           }
         }
@@ -202,6 +195,7 @@ const Login = props => {
     if (props.isLoggedIn) {
       props.navigation.navigate('subjectMain');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isLoggedIn]);
 
   return (
@@ -266,7 +260,6 @@ const Login = props => {
             //value={this.state.otherText}
             onChangeText={text => setEmail(text)}
             mode={'outlined'}
-            multiline={true}
             numberOfLines={1}
           />
           {isHaveAccount ? (
@@ -288,7 +281,6 @@ const Login = props => {
               //value={this.state.otherText}
               onChangeText={text => setUserName(text)}
               mode={'outlined'}
-              multiline={true}
               numberOfLines={1}
             />
           ) : null}

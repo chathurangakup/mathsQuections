@@ -1,14 +1,24 @@
-import {GET_QUECTIONS_OK} from './QuectionsMainActionTypes';
+import {
+  GET_QUECTIONS_OK,
+  GET_USER_REVIEW_OK,
+  ADD_REVIEW_OK,
+} from './QuectionsMainActionTypes';
 
 const initialState = {
   defaultResult: 0,
   quectionsConfig: undefined,
+  reviewInfoConfig: undefined,
+  addReviewConfig: undefined,
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_QUECTIONS_OK:
       return {...state, quectionsConfig: action.payload};
+    case GET_USER_REVIEW_OK:
+      return {...state, reviewInfoConfig: action.payload};
+    case ADD_REVIEW_OK:
+      return {...state, addReviewConfig: action.payload};
     default:
       return state;
   }

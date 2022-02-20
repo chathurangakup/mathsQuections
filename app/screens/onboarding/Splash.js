@@ -29,12 +29,25 @@ const Splash = props => {
     setTimeout(() => alert('lolo'), 5000);
   };
 
+  const tokenExists = async () => {
+    const token = await getJwttoken();
+    console.log('token1', token);
+    if (token != null) {
+      props.changeLoginStatus(true);
+      if (props.isLoggedIn) {
+        props.navigation.navigate('subjectMain');
+      }
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setTime(5);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+      tokenExists();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  });
 
   // useEffect(() => {
   //   if (props.isLoggedIn) {

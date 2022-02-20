@@ -27,6 +27,7 @@ const {width, height} = Dimensions.get('window');
 const TeacherQuotes = props => {
   const t = props.translate;
   const [data, setData] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
 
   const {titleId, subjectId, gradesId} = props.route.params;
 
@@ -35,6 +36,7 @@ const TeacherQuotes = props => {
     let params = {titleId: titleId};
     props.getTeachersQuotes(params);
     //console.log("subjectsConfig".props.subjectsConfig);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -56,6 +58,13 @@ const TeacherQuotes = props => {
     }
   };
 
+  useEffect(() => {
+    if (props.userinfo !== undefined) {
+      setUserInfo(props.userinfo.data.userData);
+      console.log('props.userinfo.userData', props.userinfo.data);
+    }
+  }, [props.userinfo]);
+
   return (
     <ScrollView
       style={{flex: 1, backgroundColor: '#fff'}}
@@ -72,7 +81,12 @@ const TeacherQuotes = props => {
           }
           style={{height: height / 2.5}}>
           <View>
-            <AppBar navigation={props.navigation} />
+            <AppBar
+              navigation={props.navigation}
+              profilePicImage={
+                userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
+              }
+            />
             <View
               style={{
                 alignItems: 'flex-start',
@@ -160,6 +174,7 @@ const mapStateToProps = (state, props) => {
     default: state.common.defaultResult,
     config: state.teacherquote.teachersQuotesConfig,
     loading: state.common.loading,
+    userinfo: state.profiledata.profileInfoConfig,
   };
 };
 

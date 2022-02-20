@@ -1,2 +1,8 @@
 export const GET_QUECTIONS = 'GET_QUECTIONS';
 export const GET_QUECTIONS_OK = 'GET_QUECTIONS_OK';
+
+export const GET_USER_REVIEW = 'GET_USER_REVIEW';
+export const GET_USER_REVIEW_OK = 'GET_USER_REVIEW_OK';
+
+export const ADD_REVIEW = 'ADD_REVIEW';
+export const ADD_REVIEW_OK = 'ADD_REVIEW_OK';

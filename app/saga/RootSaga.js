@@ -4,7 +4,15 @@ import {getSubjectsSaga} from '../screens/subjects/SubjectActions';
 import {getGradesSaga} from '../screens/grades/GradesActions';
 import {getTitlesSaga} from '../screens/titles/TitleActions';
 import {getTeachersQuotesSaga} from '../screens/teacherQuotes/TeachersQuotesActions';
-import {getQuectionsSaga} from '../screens/quectionsMain/QuectionsMainActions';
+import {
+  getQuectionsSaga,
+  getReviewsSaga,
+  addReviewSaga,
+} from '../screens/quectionsMain/QuectionsMainActions';
+import {
+  getUserInfoSaga,
+  updateUserInfoSaga,
+} from '../screens/profile/ProfileActions';
 
 export default function* rootSaga() {
   yield all([
@@ -13,5 +21,9 @@ export default function* rootSaga() {
     getTitlesSaga(),
     getTeachersQuotesSaga(),
     getQuectionsSaga(),
+    getReviewsSaga(),
+    addReviewSaga(),
+    getUserInfoSaga(),
+    updateUserInfoSaga(),
   ]);
 }
