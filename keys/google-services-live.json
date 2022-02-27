@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "738784027490",
+    "project_id": "apeiscole-921bd",
+    "storage_bucket": "apeiscole-921bd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738784027490:android:0c65e3a97290f0cbd8823b",
+        "android_client_info": {
+          "package_name": "com.chathu.apeiscole"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738784027490-apsfmqig2ib85df66pusbh0rb9efl6f7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA84DSg57I9LUcQ1e2BYE2Hm4WiAfkamNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738784027490-apsfmqig2ib85df66pusbh0rb9efl6f7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

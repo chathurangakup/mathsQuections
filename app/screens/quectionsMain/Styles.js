@@ -187,7 +187,7 @@ export const styles = StyleSheet.create({
   },
   ModalizeModelStyles: {
     padding: 10,
-    backgroundColor: colors.primaryColor2,
+    // backgroundColor: colors.primaryColor2,
     margin: 20,
     alignItems: 'center',
   },

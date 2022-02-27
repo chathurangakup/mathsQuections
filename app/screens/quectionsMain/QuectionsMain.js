@@ -25,6 +25,7 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
 import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
 import {Button} from '../../components/Button';
+import {LoadingSpinner} from '../../components/LoadingSpinner';
 import Images from '../../config/Images';
 import {AppBar} from '../../components/AppBar';
 
@@ -55,6 +56,12 @@ const QuectionMain = props => {
   const [reviews, setReviews] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const [comment, setComment] = useState('');
+  const [commentImageUrl, setCommentImageUrl] = useState('');
+  let today = new Date();
+  let date =
+    today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  let time =
+    today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
 
   const validateAns = selectOption => {
     let correct_option = quections[currentQuectionIndex].correctAns;
@@ -93,7 +100,33 @@ const QuectionMain = props => {
     };
     props.getQuections(params);
     //console.log("subjectsConfig".props.subjectsConfig);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (commentImageUrl !== '') {
+      let params = {
+        subjectId: subjectId,
+        gradesId: gradesId,
+        titleId: titleId,
+        userId: userInfo ? userInfo._id : null,
+        quectionId: quections[currentQuectionIndex]?._id,
+        review: comment,
+        role: userInfo ? userInfo.role : null,
+        image: commentImageUrl,
+        date: date,
+        time: time,
+        isPinned: false,
+      };
+      console.log(userInfo);
+      console.log(params);
+      props.addReview(params);
+      setIsVisibleModel(false);
+      setCommentImageUrl('');
+      console.log('add comment with img', commentImageUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentImageUrl !== '']);
 
   useEffect(() => {
     console.log('quections', props.config);
@@ -362,6 +395,8 @@ const QuectionMain = props => {
 
   const visibleAddCommentModel = () => {
     setIsVisibleModel(true);
+    setImagePath(Images.NoDataImage);
+    setImageFileName('');
     setComment('');
   };
 
@@ -412,6 +447,7 @@ const QuectionMain = props => {
     const url = await imageRef.getDownloadURL().catch(error => {
       throw error;
     });
+    setCommentImageUrl(url);
     return url;
   };
 
@@ -442,38 +478,32 @@ const QuectionMain = props => {
   };
 
   const getUrlAndAddCommit = async (path, fileName) => {
-    //const url = await uploadImage(path, fileName);
     console.log('comment' + comment);
     if (comment == '') {
       alert('please add comment');
     } else {
-      var today = new Date();
-      var date =
-        today.getFullYear() +
-        '-' +
-        (today.getMonth() + 1) +
-        '-' +
-        today.getDate();
-      var time =
-        today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
-
-      let params = {
-        subjectId: subjectId,
-        gradesId: gradesId,
-        titleId: titleId,
-        userId: userInfo ? userInfo._id : null,
-        quectionId: quections[currentQuectionIndex]?._id,
-        review: comment,
-        role: userInfo ? userInfo.role : null,
-        image: '',
-        date: date,
-        time: time,
-        isPinned: false,
-      };
-      console.log(userInfo);
-      console.log(params);
-      props.addReview(params);
       setIsVisibleModel(false);
+      if (fileName !== '' && comment !== '') {
+        await uploadImage(path, fileName);
+      } else if (fileName === '' && comment !== '') {
+        let params = {
+          subjectId: subjectId,
+          gradesId: gradesId,
+          titleId: titleId,
+          userId: userInfo ? userInfo._id : null,
+          quectionId: quections[currentQuectionIndex]?._id,
+          review: comment,
+          role: userInfo ? userInfo.role : null,
+          image: '',
+          date: date,
+          time: time,
+          isPinned: false,
+        };
+        console.log(userInfo);
+        console.log(params);
+        props.addReview(params);
+        setIsVisibleModel(false);
+      }
     }
   };
 
@@ -519,9 +549,9 @@ const QuectionMain = props => {
       <Modalize
         ref={modalizeRef}
         panGestureAnimatedValue={animated}
-        scrollViewProps={{contentContainerStyle: {height: '100%'}}}
+        // scrollViewProps={{contentContainerStyle: {height: '120%'}}}
         FloatingComponent={renderFloatingComponent}>
-        <View>
+        <ScrollView style={{marginBottom: 30}}>
           {reviews.length !== 0 ? (
             <View>
               <Text
@@ -534,9 +564,14 @@ const QuectionMain = props => {
                 }}>
                 Reviews
               </Text>
+              <LoadingSpinner showLoading={props.loading} />
               {reviews.map((options, index) => (
                 <View>
-                  <View style={{flexDirection: 'row', paddingLeft: 20}}>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      paddingLeft: 20,
+                    }}>
                     <View style={{flex: 1, paddingTop: 10}}>
                       <Image
                         style={{
@@ -552,7 +587,7 @@ const QuectionMain = props => {
                         }
                       />
                     </View>
-                    <View style={{flex: 4, paddingTop: 10}}>
+                    <View style={{flex: 4, paddingTop: 5}}>
                       <View style={{flexDirection: 'row'}}>
                         <Text style={{color: 'black', fontWeight: 'bold'}}>
                           {options.userInfo[0].username}
@@ -582,7 +617,7 @@ const QuectionMain = props => {
                     </View>
                   </View>
 
-                  <View style={{padding: 10}}>
+                  <View style={{padding: 5}}>
                     <Text style={{color: 'black', paddingLeft: 25}}>
                       {options.review}
                     </Text>
@@ -591,18 +626,17 @@ const QuectionMain = props => {
                         <TouchableOpacity
                           onPress={() =>
                             props.navigation.navigate('pinchScreen', {
-                              imgUrl:
-                                'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f',
+                              imgUrl: options.image,
                             })
                           }>
                           <Image
                             style={{
                               color: 'black',
-                              width: width / 3,
+                              width: width / 2,
                               height: height / 6,
                             }}
                             source={{
-                              uri: 'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f',
+                              uri: options.image,
                             }}
                           />
                         </TouchableOpacity>
@@ -623,7 +657,7 @@ const QuectionMain = props => {
               </Text>
             </View>
           )}
-        </View>
+        </ScrollView>
       </Modalize>
     );
   };
@@ -643,6 +677,8 @@ const QuectionMain = props => {
         visible={isVisibleModel}
         onRequestClose={() => {
           setIsVisibleModel(false);
+          setImagePath(Images.NoDataImage);
+          setImageFileName('');
         }}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
@@ -754,7 +790,7 @@ const QuectionMain = props => {
             {renderQuections()}
 
             {renderOptions()}
-
+            <LoadingSpinner showLoading={props.loading} />
             {renderaddCommentModel()}
           </ScrollView>
 
@@ -770,6 +806,7 @@ const mapStateToProps = (state, props) => {
   return {
     translate: getTranslate(state.localize),
     config: state.quectionmain.quectionsConfig,
+    loading: state.common.loading,
     reviewInfoConfig: state.quectionmain.reviewInfoConfig,
     addReviewConfig: state.quectionmain.addReviewConfig,
     userinfo: state.profiledata.profileInfoConfig,
