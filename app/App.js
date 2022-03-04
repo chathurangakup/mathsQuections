@@ -4,7 +4,6 @@ import {LocalizeProvider} from 'react-localize-redux';
 import {Provider} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
 
-import Splash from '../app/screens/onboarding/Splash';
 import Root from '../app/screens/Root';
 import {NavigationContainer} from '@react-navigation/native';
 import {gestureHandlerRootHOC} from 'react-native-gesture-handler';
