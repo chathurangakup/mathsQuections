@@ -250,11 +250,16 @@ const QuectionMain = props => {
                   },
                 ]}>
                 <View style={{flex: 5}}>
-                  {quections[2].imageAnsList.map((opt, index1) =>
-                    index == index1 ? (
-                      <Image style={styles.quectionsOpt} source={{uri: opt}} />
-                    ) : null,
-                  )}
+                  {quections[2].imageAnsList != undefined
+                    ? quections[2].imageAnsList.map((opt, index1) =>
+                        index == index1 ? (
+                          <Image
+                            style={styles.quectionsOpt}
+                            source={{uri: opt}}
+                          />
+                        ) : null,
+                      )
+                    : null}
                 </View>
 
                 <View style={{flex: 0.5}}>
@@ -849,12 +854,7 @@ const QuectionMain = props => {
                       }}>
                       {score}
                     </Text>
-                    <Text
-                      style={{
-                        fontSize: 20,
-                        fontWeight: 'bold',
-                        color: colors.blackColor,
-                      }}>
+                    <Text style={styles.quectionCountStyle}>
                       /{quections.length}
                     </Text>
                   </View>

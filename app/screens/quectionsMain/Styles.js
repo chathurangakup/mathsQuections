@@ -248,10 +248,13 @@ export const styles = StyleSheet.create({
     width: width / 2,
     height: height / 6,
   },
-  rootModal: {
-    flex: 1,
+  rootModel: {
+    // backgroundColor: colors.primaryColor1,
+    marginTop: height / 3,
+    height: height / 2,
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 20,
   },
 
   rootModalTextWrap: {
@@ -267,5 +270,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     marginVertical: 20,
+  },
+  quectionCountStyle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.blackColor,
   },
 });
