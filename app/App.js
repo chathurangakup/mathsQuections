@@ -27,7 +27,7 @@ const initialLanguageList = [
   // {id: 'ta', value: 'தமிழ்', name: 'Tamil'},
   {id: 'en', value: 'English', name: 'English'},
   // {id: 'ch', value: '中文', name: 'Chinese'},
-  // {id: 'hi', value: 'हिन्दी', name: 'Hindi'},
+  // {id: 'hi', value: 'हिन्दी', name: 'Hindi00'},
 ];
 
 const {width, height} = Dimensions.get('window');
