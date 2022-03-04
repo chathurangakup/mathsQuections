@@ -104,7 +104,7 @@ const TeacherQuotes = props => {
                     fontWeight: 'bold',
                     paddingLeft: 10,
                   }}>
-                  {data != '' ? data[0].TeachersInfo[0].username : ''}
+                  {data != '' ? data[0].TeachersInfo[0].userName : ''}
                 </Text>
                 <Text
                   style={{

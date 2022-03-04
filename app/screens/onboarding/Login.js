@@ -19,6 +19,7 @@ import {
 import {TextInput} from 'react-native-paper';
 
 import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
+import {LOGOUT_IMAGE} from '../../config/settings';
 
 import {
   setConfig,
@@ -27,10 +28,10 @@ import {
   ajaxCall,
   setJwttoken,
   setUserId,
+  showErrorSlideUpPanel,
 } from '../../lib/Utils';
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
-import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
 import {LOGIN} from '../../actyonTypes/Common';
 
@@ -69,6 +70,8 @@ const Login = props => {
   const t = props.translate;
   const [email, setEmail] = useState(null);
   const [userName, setUserName] = useState(null);
+  const [isErroeEmail, setIsErrorEmail] = useState(null);
+  const [isErrorUserName, setIsErrorUserName] = useState(null);
   const [isHaveAccount, setIsHaveAccount] = useState(false);
 
   const setUser = () => {
@@ -132,12 +135,17 @@ const Login = props => {
     }
   };
 
-  const signOut = async () => {
-    try {
-      await GoogleSignin.signOut();
-      //  this.setState({ user: null }); // Remember to remove the user from your app's state as well
-    } catch (error) {
-      console.error(error);
+  const getTokenFunc = async () => {
+    const loginUrl = createUrl('users', 'login');
+    let params = {
+      email: email,
+    };
+    const responce = await ajaxCall(loginUrl, params, true, 'POST', false);
+    if (responce.success == true) {
+      console.log('responce', responce);
+      setJwttoken(responce.token);
+      setUserId(responce.userId);
+      props.changeLoginStatus(true);
     }
   };
 
@@ -161,6 +169,10 @@ const Login = props => {
       } else {
         const responce = await ajaxCall(url, params, true, 'POST', false);
         console.log('responce', responce);
+        console.log('responce', responce);
+        if (responce.result == 'success') {
+          getTokenFunc();
+        }
       }
     } else {
       if (email == null) {
@@ -169,26 +181,23 @@ const Login = props => {
         const responce = await ajaxCall(url, params, true, 'POST', false);
         console.log('responce', responce);
         if (responce.result == 'success') {
-          const loginUrl = createUrl('users', 'login');
-          let params = {
-            email: email,
-          };
-          const responce = await ajaxCall(
-            loginUrl,
-            params,
-            true,
-            'POST',
+          getTokenFunc();
+        } else if (responce.result == 'error') {
+          showErrorSlideUpPanel(
+            'Oops',
+            'You dont have an accout, please Register',
             false,
+            LOGOUT_IMAGE,
+            'CANCEL',
+            () => {},
+            'Logout',
+            () => {},
+            () => {},
+            'OK',
           );
-          if (responce.success == true) {
-            console.log('responce', responce);
-            setJwttoken(responce.token);
-            setUserId(responce.userId);
-            props.changeLoginStatus(true);
-          }
         }
-      }
-    } // isShowUsername false
+      } // isShowUsername false
+    }
   };
 
   useEffect(() => {
@@ -226,30 +235,12 @@ const Login = props => {
         <View style={{paddingTop: 40, paddingLeft: 40, paddingBottom: 20}}>
           <Text style={{color: 'black'}}>Warmly welcome to Ape Iscole</Text>
         </View>
-        <View style={{paddingLeft: 40, flexDirection: 'row'}}>
-          <Text style={{color: 'black'}}>
-            {isHaveAccount
-              ? 'I already have an account'
-              : 'I Dont have account'}
-          </Text>
-          <TouchableOpacity onPress={() => signOut()}>
-            <Text
-              style={{
-                color: 'black',
-                paddingLeft: 10,
-                paddingBottom: 20,
-                color: colors.red,
-              }}>
-              {isHaveAccount ? 'Sign In' : 'Sign Up'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+
         <View style={{width: width / 1.2, marginLeft: 40}}>
-          <LoadingSpinner showLoading={props.loading} />
+          {/* <LoadingSpinner showLoading={true} /> */}
           <TextInput
             theme={{
               colors: {
-                primary: '#7B1B67',
                 underlineColor: 'transparent',
                 // placeholder: colors.npsOutlineTextHeader,
                 // text: colors.npsOutlineText,
@@ -266,7 +257,6 @@ const Login = props => {
             <TextInput
               theme={{
                 colors: {
-                  primary: '#7B1B67',
                   underlineColor: 'transparent',
                   // placeholder: colors.npsOutlineTextHeader,
                   // text: colors.npsOutlineText,
@@ -300,7 +290,7 @@ const Login = props => {
         </View>
         <View style={{alignItems: 'center', padding: 20}}>
           <View>
-            <Text style={{color: colors.blackColor}}> Or </Text>
+            <Text style={{color: colors.blackColor, padding: 10}}> Or </Text>
           </View>
           <GoogleSigninButton
             style={{width: width / 2, height: 48}}
@@ -309,6 +299,26 @@ const Login = props => {
             onPress={signIn}
             //disabled={this.state.isSigninInProgress}
           />
+        </View>
+
+        <View
+          style={{alignSelf: 'center', flexDirection: 'row', paddingTop: 20}}>
+          <Text style={{color: 'black'}}>
+            {isHaveAccount
+              ? 'I already have an account'
+              : 'I Dont have account'}
+          </Text>
+          <TouchableOpacity onPress={() => setIsHaveAccount(!isHaveAccount)}>
+            <Text
+              style={{
+                color: 'black',
+                paddingLeft: 10,
+                paddingBottom: 20,
+                color: colors.red,
+              }}>
+              {isHaveAccount ? 'Login' : 'Register'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>

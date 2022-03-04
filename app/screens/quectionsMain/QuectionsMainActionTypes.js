@@ -6,3 +6,6 @@ export const GET_USER_REVIEW_OK = 'GET_USER_REVIEW_OK';
 
 export const ADD_REVIEW = 'ADD_REVIEW';
 export const ADD_REVIEW_OK = 'ADD_REVIEW_OK';
+
+export const DELETE_REVIEW = 'DELETE_REVIEW';
+export const DELETE_REVIEW_OK = 'DELETE_REVIEW_OK';

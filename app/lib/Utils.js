@@ -232,9 +232,8 @@ export const showErrorSlideUpPanel = (
   onPressLeft = () => {},
   rightBtnText,
   onPressRight = () => {},
-  // okFn = () => {},
-  // okText = 'button.ok',
-  // btnCancel = () => {},
+  okPress = () => {},
+  okBtnText,
 ) => {
   global.store.dispatch({
     type: 'SHOW_BOTTOM_ALERT',
@@ -249,9 +248,8 @@ export const showErrorSlideUpPanel = (
       onPressLeft,
       rightBtnText,
       onPressRight,
-      // okText,
-      // okFn,
-      // btnCancel,
+      okPress,
+      okBtnText,
     },
   });
 };

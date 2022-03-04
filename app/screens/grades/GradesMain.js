@@ -17,7 +17,6 @@ import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {GET_GRADES} from './GradesActionTypes';
 import {Search} from '../../components/Search';
-import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {AppBar} from '../../components/AppBar';
 
 const {width, height} = Dimensions.get('window');
@@ -118,14 +117,11 @@ const GradesMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <Text style={{color: colors.blackColor, left: 15}}>
-          Good Morning Uditha
-        </Text>
+
         <Search onChange={text => searchText(text)} />
       </View>
 
       <View>
-        <LoadingSpinner showLoading={props.loading} />
         {gradesData.length == 0 ? (
           <View style={{alignItems: 'center', paddingTop: 40}}>
             <Text style={{color: colors.blackColor}}>Not Data Found</Text>

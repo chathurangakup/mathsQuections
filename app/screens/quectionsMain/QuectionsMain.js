@@ -3,7 +3,6 @@ import {
   Text,
   View,
   SafeAreaView,
-  StyleSheet,
   TouchableOpacity,
   Image,
   Animated,
@@ -11,7 +10,6 @@ import {
   Dimensions,
   ScrollView,
   Modal,
-  Alert,
   Platform,
   TextInput,
 } from 'react-native';
@@ -23,17 +21,19 @@ import {Modalize} from 'react-native-modalize';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 
-import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
+import {colors} from '../../config/styles';
 import {Button} from '../../components/Button';
-import {LoadingSpinner} from '../../components/LoadingSpinner';
 import Images from '../../config/Images';
 import {AppBar} from '../../components/AppBar';
+import {showErrorSlideUpPanel} from '../../lib/Utils';
+import {LOGOUT_IMAGE} from '../../config/settings';
 
 import {quectionsSet} from '../../config/DefaultJson';
 import {
   GET_QUECTIONS,
   GET_USER_REVIEW,
   ADD_REVIEW,
+  DELETE_REVIEW,
 } from './QuectionsMainActionTypes';
 import {styles} from './Styles';
 
@@ -46,7 +46,7 @@ const QuectionMain = props => {
   const [currentQuectionIndex, setCurrentQuectionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
   const [correctOption, setCorrectOption] = useState(null);
-  const [isOptionsDisable, setIsOptionsDisable] = useState(false);
+  // const [isOptionsDisable, setIsOptionsDisable] = useState(false);
   const [score, setScore] = useState(0);
   const [showNextButton, setShowNextButton] = useState(false);
   const [isVisibleModel, setIsVisibleModel] = useState(false);
@@ -56,6 +56,7 @@ const QuectionMain = props => {
   const [reviews, setReviews] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
   const [comment, setComment] = useState('');
+  const [isShowMarksModel, setIsShowMarksModel] = useState(false);
   const [commentImageUrl, setCommentImageUrl] = useState('');
   let today = new Date();
   let date =
@@ -67,7 +68,7 @@ const QuectionMain = props => {
     let correct_option = quections[currentQuectionIndex].correctAns;
     setCurrentOptionSelected(selectOption);
     setCorrectOption(correct_option);
-    setIsOptionsDisable(true);
+    // setIsOptionsDisable(true);
     if (selectOption == correct_option) {
       setScore(score + 1);
     }
@@ -76,11 +77,12 @@ const QuectionMain = props => {
 
   const handleNext = () => {
     if (currentQuectionIndex + 1 == quections.length) {
+      setIsShowMarksModel(true);
     } else {
       setCurrentQuectionIndex(currentQuectionIndex + 1);
       setCurrentOptionSelected(null);
       setCorrectOption(null);
-      setIsOptionsDisable(false);
+      // setIsOptionsDisable(false);
       setShowNextButton(false);
     }
     Animated.timing(progress, {
@@ -544,6 +546,30 @@ const QuectionMain = props => {
     return imgSource;
   };
 
+  useEffect(() => {
+    if (props.deleteReviewConfig != undefined) {
+      console.log('props.deleteReviewConfig', props.deleteReviewConfig);
+      let params = {
+        quectionid: quections[currentQuectionIndex]?._id,
+      };
+      props.getReviews(params);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.deleteReviewConfig]);
+
+  const onPressDelete = reviewId => {
+    showErrorSlideUpPanel(
+      'Delete',
+      'Are you sure, you want to delete?',
+      true,
+      LOGOUT_IMAGE,
+      'CANCEL',
+      () => {},
+      'Delete',
+      () => props.deleteReview(reviewId),
+    );
+  };
+
   const renderModalizeModel = () => {
     return (
       <Modalize
@@ -554,32 +580,13 @@ const QuectionMain = props => {
         <ScrollView style={{marginBottom: 30}}>
           {reviews.length !== 0 ? (
             <View>
-              <Text
-                style={{
-                  color: 'black',
-                  alignSelf: 'center',
-                  padding: 10,
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                }}>
-                Reviews
-              </Text>
-              <LoadingSpinner showLoading={props.loading} />
+              <Text style={styles.ModalizeTextStyle}>Reviews</Text>
               {reviews.map((options, index) => (
                 <View>
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      paddingLeft: 20,
-                    }}>
+                  <View style={style.reviewRoot}>
                     <View style={{flex: 1, paddingTop: 10}}>
                       <Image
-                        style={{
-                          color: 'black',
-                          width: 50,
-                          height: 50,
-                          borderRadius: 50,
-                        }}
+                        style={styles.reviewImgStyles}
                         source={
                           options.userInfo[0].image === ''
                             ? Images.ProfilePic
@@ -595,7 +602,6 @@ const QuectionMain = props => {
                         <Text
                           style={{
                             color: 'black',
-
                             paddingLeft: 5,
                           }}>
                           ({options.userInfo[0].role})
@@ -608,12 +614,14 @@ const QuectionMain = props => {
                     </View>
 
                     <View style={{flex: 1, padding: 10}}>
-                      <Icons
-                        name="delete"
-                        size={30}
-                        color={colors.blackColor}
-                        onPress={() => onPressBackIcon()}
-                      />
+                      {userInfo._id == options.userId ? (
+                        <Icons
+                          name="delete"
+                          size={30}
+                          color={colors.blackColor}
+                          onPress={() => onPressDelete(options._id)}
+                        />
+                      ) : null}
                     </View>
                   </View>
 
@@ -630,11 +638,7 @@ const QuectionMain = props => {
                             })
                           }>
                           <Image
-                            style={{
-                              color: 'black',
-                              width: width / 2,
-                              height: height / 6,
-                            }}
+                            style={styles.reviewImgStyle2}
                             source={{
                               uri: options.image,
                             }}
@@ -666,6 +670,32 @@ const QuectionMain = props => {
     setIsVisibleModel(false);
     setImagePath(Images.NoDataImage);
     setImageFileName('');
+  };
+
+  const clickRetryBtn = () => {
+    setIsShowMarksModel(false);
+    setCurrentQuectionIndex(0);
+    setScore(0);
+
+    setCurrentOptionSelected(null);
+    setCorrectOption(null);
+    setShowNextButton(false);
+
+    setProgress(new Animated.Value(0));
+  };
+
+  const clickGotoNectBtn = () => {
+    setIsShowMarksModel(false);
+    setCurrentQuectionIndex(0);
+    setScore(0);
+
+    setCurrentOptionSelected(null);
+    setCorrectOption(null);
+    setShowNextButton(false);
+
+    setProgress(new Animated.Value(0));
+
+    props.navigation.navigate('titleMain');
   };
 
   const renderaddCommentModel = () => {
@@ -743,7 +773,7 @@ const QuectionMain = props => {
     setCurrentQuectionIndex(currentQuectionIndex - 1);
     setCurrentOptionSelected(null);
     setCorrectOption(null);
-    setIsOptionsDisable(false);
+    // setIsOptionsDisable(false);
     setShowNextButton(false);
 
     Animated.timing(progress, {
@@ -790,8 +820,61 @@ const QuectionMain = props => {
             {renderQuections()}
 
             {renderOptions()}
-            <LoadingSpinner showLoading={props.loading} />
+
             {renderaddCommentModel()}
+
+            {/* Score Model */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={isShowMarksModel}>
+              <View style={styles.rootModel}>
+                <View style={styles.rootModalTextWrap}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      color: score > quections / 2 ? colors.green : colors.red,
+                    }}>
+                    {' '}
+                    {score > quections / 2 ? 'Congratulations' : 'Oops!'}
+                  </Text>
+                  <View style={styles.rootModalTextWrap2}>
+                    <Text
+                      style={{
+                        fontSize: 25,
+                        fontWeight: 'bold',
+                        color:
+                          score > quections / 2 ? colors.green : colors.red,
+                      }}>
+                      {score}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        fontWeight: 'bold',
+                        color: colors.blackColor,
+                      }}>
+                      /{quections.length}
+                    </Text>
+                  </View>
+                  {/* Retry button */}
+                  {score > quections / 2 ? (
+                    <TouchableOpacity
+                      style={styles.nextBtnStyles}
+                      onPress={() => clickGotoNectBtn()}>
+                      <Text style={styles.nextBtnTextStyles}>Go to Next</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.nextBtnStyles}
+                      onPress={() => clickRetryBtn()}>
+                      <Text style={styles.nextBtnTextStyles}>RETRY</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </Modal>
           </ScrollView>
 
           {renderNextButton()}
@@ -809,6 +892,7 @@ const mapStateToProps = (state, props) => {
     loading: state.common.loading,
     reviewInfoConfig: state.quectionmain.reviewInfoConfig,
     addReviewConfig: state.quectionmain.addReviewConfig,
+    deleteReviewConfig: state.quectionmain.deleteReviewConfig,
     userinfo: state.profiledata.profileInfoConfig,
   };
 };
@@ -828,6 +912,13 @@ function mapDispatchToProps(dispatch) {
       dispatch({
         type: ADD_REVIEW,
         payload: payload,
+      });
+    },
+
+    deleteReview: reviewId => {
+      dispatch({
+        type: DELETE_REVIEW,
+        reviewId: reviewId,
       });
     },
   };

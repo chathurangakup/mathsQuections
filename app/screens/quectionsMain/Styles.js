@@ -225,4 +225,47 @@ export const styles = StyleSheet.create({
   camOrlibTextStyles: {
     color: colors.white,
   },
+  ModalizeTextStyle: {
+    color: 'black',
+    alignSelf: 'center',
+    padding: 10,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  reviewRoot: {
+    flexDirection: 'row',
+    paddingLeft: 20,
+  },
+  reviewImgStyles: {
+    color: 'black',
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+  },
+
+  reviewImgStyle2: {
+    color: 'black',
+    width: width / 2,
+    height: height / 6,
+  },
+  rootModal: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  rootModalTextWrap: {
+    backgroundColor: colors.primaryColor1,
+    width: '90%',
+    borderRadius: 20,
+    opacity: 1,
+    padding: 20,
+    alignItems: 'center',
+  },
+  rootModalTextWrap2: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
 });

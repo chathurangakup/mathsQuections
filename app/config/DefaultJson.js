@@ -16,16 +16,11 @@ export const language = [
 export const quectionsSet = [
   {
     id: 1,
-    quection: 'Choose the FALSE statement about the Milky Way Galaxy.',
+    quection: '',
     image: '',
     imageQuection: '',
     answerType: 'Text',
-    ansList: [
-      'It is a barred spiral galaxy.',
-      'It is billions of years old',
-      'It contains billions of stars.',
-      'It is actually a cluster of galaxies.djshjdhsjh djsjdhsjhdjhdsghdgsghg',
-    ],
+    ansList: ['', '', '', ''],
     correctAns: 'It is billions of years old',
     time: 2,
   },

@@ -47,6 +47,14 @@ const SlideUpPanel = props => {
     props.config.onPressRight();
   };
 
+  const okPress = () => {
+    if (modalizeRef.current) {
+      modalizeRef.current.close();
+    }
+    props.hideSlidUpPanel();
+    props.config.okPress();
+  };
+
   return (
     <Modalize
       ref={modalizeRef}
@@ -100,7 +108,13 @@ const SlideUpPanel = props => {
           </View>
         </View>
       ) : (
-        <View />
+        <View style={styles.okbtnStyle}>
+          <Button
+            buttonStyle={{color: colors.primaryColor2}}
+            onPressBtn={() => okPress()}
+            addText={props.config.okBtnText}
+          />
+        </View>
       )}
     </Modalize>
   );
@@ -110,6 +124,12 @@ const styles = StyleSheet.create({
   image: {
     width: 250,
     height: 150,
+  },
+  okbtnStyle: {
+    flex: 1,
+    padding: 10,
+    width: 200,
+    alignSelf: 'center',
   },
 });
 
@@ -127,6 +147,8 @@ SlideUpPanel.defaultProps = {
     onPressLeft: () => {},
     rightBtnText: '',
     onPressRight: () => {},
+    okBtnText: '',
+    okPress: () => {},
   },
 };
 

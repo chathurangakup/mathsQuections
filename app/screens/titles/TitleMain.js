@@ -15,7 +15,6 @@ import {connect} from 'react-redux';
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {GET_TITLES} from './TitleActionTypes';
-import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Search} from '../../components/Search';
 import {AppBar} from '../../components/AppBar';
 
@@ -124,14 +123,11 @@ const GradesMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <Text style={{color: colors.blackColor, top: 40, left: 15}}>
-          Good Morning Uditha
-        </Text>
+
         <Search onChange={text => searchText(text)} />
       </View>
 
       <View>
-        <LoadingSpinner showLoading={props.loading} />
         <FlatList
           data={titleData}
           style={{

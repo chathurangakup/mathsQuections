@@ -14,7 +14,6 @@ import {connect} from 'react-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
-import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {AppBar} from '../../components/AppBar';
 
 import {GET_SUBJECTS} from './SubjectActionTypes';
@@ -114,13 +113,9 @@ const SubjectMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <Text style={{color: colors.blackColor, top: 40, left: 15}}>
-          Good Morning Uditha
-        </Text>
       </View>
 
       <View>
-        <LoadingSpinner showLoading={props.loading} />
         <FlatList
           data={subjectData}
           style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}

@@ -7,6 +7,8 @@ import {
   GET_USER_REVIEW_OK,
   ADD_REVIEW,
   ADD_REVIEW_OK,
+  DELETE_REVIEW,
+  DELETE_REVIEW_OK,
 } from './QuectionsMainActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
@@ -87,4 +89,30 @@ const addReview = function* (payload) {
 
 export function* addReviewSaga() {
   yield takeLatest(ADD_REVIEW, addReview);
+}
+
+//delete comment
+const deleteReview = function* (payload) {
+  const language = yield getLanguageId();
+  const updateController = 'reviews' + language;
+  const searchParam = payload;
+  console.log('language', searchParam);
+
+  const response = yield ajaxCall(
+    createUrl(updateController, '/deleteReview/' + payload.reviewId),
+    payload.payload,
+    true,
+    'GET',
+    true,
+  );
+  yield put({
+    type: DELETE_REVIEW_OK,
+    payload: {
+      data: response,
+    },
+  });
+};
+
+export function* deleteReviewSaga() {
+  yield takeLatest(DELETE_REVIEW, deleteReview);
 }

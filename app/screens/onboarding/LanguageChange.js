@@ -32,7 +32,7 @@ const Language = props => {
 
   const initialLanguageList = [
     {id: 'si', value: 'සිංහල', name: 'Sinhala'},
-    {id: 'ta', value: 'தமிழ்', name: 'Tamil'},
+    // {id: 'ta', value: 'தமிழ்', name: 'Tamil'},
     {id: 'en', value: 'English', name: 'English'},
     // {id: 'ch', value: '中文', name: 'Chinese'},
     // {id: 'hi', value: 'हिन्दी', name: 'Hindi'},

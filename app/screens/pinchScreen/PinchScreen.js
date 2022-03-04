@@ -25,7 +25,7 @@ const Pinch = props => {
   ];
   return (
     <View style={{flex: 1}}>
-      <AppBar navigation={props.navigation} />
+      <AppBar navigation={props.navigation} isShowProfile={false} />
       <ReactNativeZoomableView
         maxZoom={1.5}
         minZoom={0.5}

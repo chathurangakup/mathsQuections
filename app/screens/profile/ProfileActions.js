@@ -33,13 +33,13 @@ export function* getUserInfoSaga() {
   yield takeLatest(GET_USER_INFO, getUserInfo);
 }
 
-const updateUserInfo = function* (payload, userId) {
+const updateUserInfo = function* (payload) {
   const updateController = 'users';
   const searchParam = payload;
   console.log('language', searchParam);
 
   const response = yield ajaxCall(
-    createUrl(updateController, 'updateuserInfo/' + userId),
+    createUrl(updateController, 'updateuserInfo/' + payload.userId),
     payload.payload,
     true,
     'POST',

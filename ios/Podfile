@@ -18,6 +18,8 @@ target 'mathsQuections' do
 
   pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage'
 
+  pod 'react-native-netinfo', :path => '../node_modules/@react-native-community/netinfo'
+
   target 'mathsQuectionsTests' do
     inherit! :complete
     # Pods for testing

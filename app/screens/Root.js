@@ -7,6 +7,7 @@ import LocalizationHelper, {
   getAvailableLanguageList,
 } from '../lib/LocalizationHelper';
 import SlideUpPanel from '../components/SlideUpPanel';
+import {LoadingSpinner} from '../components/LoadingSpinner';
 
 import Subj from '../screens/subjects/SubjectsMain';
 import {getJwttoken} from '../lib/Utils';
@@ -44,6 +45,7 @@ const Root = props => {
     return (
       <View style={{flex: 1}}>
         {/* <SplashScreen /> */}
+        <LoadingSpinner showLoading={props.loading} />
         {loggingStatus == false ? <Onboarding /> : <MainStack />}
 
         <SlideUpPanel />
