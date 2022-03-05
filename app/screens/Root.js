@@ -7,6 +7,7 @@ import LocalizationHelper, {
   getAvailableLanguageList,
 } from '../lib/LocalizationHelper';
 import SlideUpPanel from '../components/SlideUpPanel';
+import AdvertiseModel from '../components/AdvertiseModel';
 import {LoadingSpinner} from '../components/LoadingSpinner';
 
 import Subj from '../screens/subjects/SubjectsMain';
@@ -49,6 +50,7 @@ const Root = props => {
         {loggingStatus == false ? <Onboarding /> : <MainStack />}
 
         <SlideUpPanel />
+        <AdvertiseModel />
       </View>
     );
   } else {

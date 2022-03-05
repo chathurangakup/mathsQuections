@@ -9,3 +9,6 @@ export const ADD_REVIEW_OK = 'ADD_REVIEW_OK';
 
 export const DELETE_REVIEW = 'DELETE_REVIEW';
 export const DELETE_REVIEW_OK = 'DELETE_REVIEW_OK';
+
+export const SHOW_ADVERTICE = 'SHOW_ADVERTICE';
+export const SHOW_ADVERTICE_OK = 'SHOW_ADVERTICE_OK';

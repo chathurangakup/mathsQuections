@@ -25,7 +25,7 @@ import {colors} from '../../config/styles';
 import {Button} from '../../components/Button';
 import Images from '../../config/Images';
 import {AppBar} from '../../components/AppBar';
-import {showErrorSlideUpPanel} from '../../lib/Utils';
+import {showErrorSlideUpPanel, showAdverticeModal} from '../../lib/Utils';
 import {LOGOUT_IMAGE} from '../../config/settings';
 
 import {quectionsSet} from '../../config/DefaultJson';
@@ -34,6 +34,7 @@ import {
   GET_USER_REVIEW,
   ADD_REVIEW,
   DELETE_REVIEW,
+  SHOW_ADVERTICE,
 } from './QuectionsMainActionTypes';
 import {styles} from './Styles';
 
@@ -104,6 +105,18 @@ const QuectionMain = props => {
     //console.log("subjectsConfig".props.subjectsConfig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    console.log('props.showAdverticeConfig', props.showAdverticeConfig);
+    if (props.showAdverticeConfig !== undefined) {
+      showAdverticeModal(
+        props.showAdverticeConfig.data.result[0].image,
+        props.showAdverticeConfig.data.result[0].image,
+        () => {},
+        'OK',
+      );
+    }
+  }, [props.showAdverticeConfig]);
 
   useEffect(() => {
     if (commentImageUrl !== '') {
@@ -678,6 +691,11 @@ const QuectionMain = props => {
   };
 
   const clickRetryBtn = () => {
+    const params = {
+      titleId: titleId,
+    };
+    props.showAdvertice(params);
+
     setIsShowMarksModel(false);
     setCurrentQuectionIndex(0);
     setScore(0);
@@ -894,6 +912,7 @@ const mapStateToProps = (state, props) => {
     addReviewConfig: state.quectionmain.addReviewConfig,
     deleteReviewConfig: state.quectionmain.deleteReviewConfig,
     userinfo: state.profiledata.profileInfoConfig,
+    showAdverticeConfig: state.quectionmain.showAdverticeConfig,
   };
 };
 
@@ -919,6 +938,13 @@ function mapDispatchToProps(dispatch) {
       dispatch({
         type: DELETE_REVIEW,
         reviewId: reviewId,
+      });
+    },
+
+    showAdvertice: payload => {
+      dispatch({
+        type: SHOW_ADVERTICE,
+        payload: payload,
       });
     },
   };

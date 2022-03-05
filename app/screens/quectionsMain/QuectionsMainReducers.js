@@ -3,6 +3,7 @@ import {
   GET_USER_REVIEW_OK,
   ADD_REVIEW_OK,
   DELETE_REVIEW_OK,
+  SHOW_ADVERTICE_OK,
 } from './QuectionsMainActionTypes';
 
 const initialState = {
@@ -11,6 +12,7 @@ const initialState = {
   reviewInfoConfig: undefined,
   addReviewConfig: undefined,
   deleteReviewConfig: undefined,
+  showAdverticeConfig: undefined,
 };
 
 export default (state = initialState, action) => {
@@ -23,6 +25,8 @@ export default (state = initialState, action) => {
       return {...state, addReviewConfig: action.payload};
     case DELETE_REVIEW_OK:
       return {...state, deleteReviewConfig: action.payload};
+    case SHOW_ADVERTICE_OK:
+      return {...state, showAdverticeConfig: action.payload};
     default:
       return state;
   }

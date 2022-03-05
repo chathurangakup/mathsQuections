@@ -9,6 +9,8 @@ import {
   ADD_REVIEW_OK,
   DELETE_REVIEW,
   DELETE_REVIEW_OK,
+  SHOW_ADVERTICE,
+  SHOW_ADVERTICE_OK,
 } from './QuectionsMainActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
@@ -115,4 +117,30 @@ const deleteReview = function* (payload) {
 
 export function* deleteReviewSaga() {
   yield takeLatest(DELETE_REVIEW, deleteReview);
+}
+
+//show adverticve
+const showAdvertice = function* (payload) {
+  const language = yield getLanguageId();
+  const updateController = 'advertisement' + language;
+  const searchParam = payload;
+  console.log('language', searchParam);
+
+  const response = yield ajaxCall(
+    createUrl(updateController, '/getAdvertisement'),
+    payload.payload,
+    true,
+    'POST',
+    true,
+  );
+  yield put({
+    type: SHOW_ADVERTICE_OK,
+    payload: {
+      data: response,
+    },
+  });
+};
+
+export function* showAdverticeSaga() {
+  yield takeLatest(SHOW_ADVERTICE, showAdvertice);
 }

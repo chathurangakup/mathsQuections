@@ -17,16 +17,25 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {TextInput} from 'react-native-paper';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import storage from '@react-native-firebase/storage';
+import {Dropdown} from 'react-native-material-dropdown-v2-fixed';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {LoadingSpinner} from '../../components/LoadingSpinner';
 import {Button} from '../../components/Button';
 import {AppBar} from '../../components/AppBar';
-import {showErrorSlideUpPanel, setJwttoken, setUserId} from '../../lib/Utils';
+import {
+  showErrorSlideUpPanel,
+  setJwttoken,
+  setUserId,
+  getLanguageId,
+  setLanguageId,
+} from '../../lib/Utils';
 import {LOGOUT_IMAGE} from '../../config/settings';
 import {LOGOUT} from '../../actyonTypes/Common';
 import {UPDATE_USER_INFO, GET_USER_INFO} from './ProfileActionsTypes';
+
+import LocalizationHelper from '../../lib/LocalizationHelper';
 
 const {width, height} = Dimensions.get('window');
 
@@ -37,6 +46,7 @@ const Profile = props => {
   const [email, setEmail] = useState('');
   const [isErrorUserName, setIsErrorUsername] = useState(false);
   const [designtion, setDesignation] = useState('');
+  const [language, setLanguage] = useState('');
   const [phoneNum, setPhoneNum] = useState('');
   const [image, setImage] = useState('');
   const [role, setRole] = useState('');
@@ -44,6 +54,14 @@ const Profile = props => {
   const [imagePath, setImagePath] = useState(Images.ProfilePic);
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const initialLanguageList = [
+    {id: 'si', value: 'සිංහල', name: 'Sinhala'},
+    // {id: 'ta', value: 'தமிழ்', name: 'Tamil'},
+    {id: 'en', value: 'English', name: 'English'},
+    // {id: 'ch', value: '中文', name: 'Chinese'},
+    // {id: 'hi', value: 'हिन्दी', name: 'Hindi'},
+  ];
 
   const getPlatformURI = imagePath => {
     let imgSource = imagePath;
@@ -68,12 +86,22 @@ const Profile = props => {
 
   let imgSource = getPlatformURI(imagePath);
 
+  const setLan = async () => {
+    const language = await getLanguageId();
+    if (language == 'en') {
+      setLanguage('English');
+    } else {
+      setLanguage('සිංහල');
+    }
+  };
+
   useEffect(() => {
     // console.log('teachersQ', titleId);
     // let params = {titleId: titleId};
     // props.getTeachersQuotes(params);
+    setLan();
     console.log('userData', props.userinfo);
-    setUsername(props.userinfo.data.userData.username);
+    setUsername(props.userinfo.data.userData.userName);
     setRole(props.userinfo.data.userData.role);
     setImage(props.userinfo.data.userData.image);
     setEmail(props.userinfo.data.userData.email);
@@ -244,6 +272,27 @@ const Profile = props => {
     });
   };
 
+  const _changeLanguage = (selectedLangCode, needInit, langList) => {
+    LocalizationHelper.prototype.changeAppLanguage(
+      selectedLangCode,
+      needInit,
+      langList,
+    );
+  };
+
+  const clickChangeLanguage = value => {
+    if (value === 'English') {
+      setLanguageId('en');
+      _changeLanguage('en', true, false);
+    }
+    if (value === 'සිංහල') {
+      setLanguageId('si');
+      _changeLanguage('si', true, false);
+    }
+
+    props.navigation.navigate('subjectMain');
+  };
+
   return (
     <View
       style={{flex: 1, backgroundColor: '#fff'}}
@@ -287,17 +336,18 @@ const Profile = props => {
             </View>
           </View>
 
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingTop: 30,
-            }}>
-            <View style={{flex: 2, paddingLeft: 40}}>
+          <View style={style.changeLanStyle}>
+            <View style={{flex: 3, paddingLeft: 40}}>
               <Text style={{color: 'black'}}>Change language</Text>
             </View>
-            <View style={{flex: 1, paddingRight: 40}}>
-              <Text style={{color: 'black'}}>Change language</Text>
+            <View style={{flex: 2, paddingRight: 40}}>
+              <Dropdown
+                rippleCentered
+                label="Select Language"
+                data={initialLanguageList}
+                value={language}
+                onChangeText={value => clickChangeLanguage(value)}
+              />
             </View>
           </View>
 
@@ -449,6 +499,11 @@ const styles = StyleSheet.create({
   },
   camOrlibTextStyles: {
     color: colors.white,
+  },
+  changeLanStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: 30,
   },
 });
 

@@ -6,7 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL, DEFAULT_PROTOCOL, API_ENDPOINT} from '../config/settings';
 import {Modalize} from 'react-native-modalize';
 
-import {UPDATE_LOADING_SPINNER_STATE} from '../actyonTypes/Common';
+import {
+  UPDATE_LOADING_SPINNER_STATE,
+  SHOW_ADVERTICE_MODAL,
+} from '../actyonTypes/Common';
 
 export const setConfig = async (key, value) => {
   global.username = true;
@@ -248,6 +251,25 @@ export const showErrorSlideUpPanel = (
       onPressLeft,
       rightBtnText,
       onPressRight,
+      okPress,
+      okBtnText,
+    },
+  });
+};
+
+export const showAdverticeModal = (
+  image,
+  link,
+  okPress = () => {},
+  okBtnText,
+) => {
+  global.store.dispatch({
+    type: SHOW_ADVERTICE_MODAL,
+    payload: {
+      alertType: 'TYPE_ADVERTICE_MODAL',
+      visible: true,
+      image,
+      link,
       okPress,
       okBtnText,
     },

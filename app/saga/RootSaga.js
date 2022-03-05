@@ -9,6 +9,7 @@ import {
   getReviewsSaga,
   addReviewSaga,
   deleteReviewSaga,
+  showAdverticeSaga,
 } from '../screens/quectionsMain/QuectionsMainActions';
 import {
   getUserInfoSaga,
@@ -27,5 +28,6 @@ export default function* rootSaga() {
     getUserInfoSaga(),
     updateUserInfoSaga(),
     deleteReviewSaga(),
+    showAdverticeSaga(),
   ]);
 }
