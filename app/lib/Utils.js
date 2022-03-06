@@ -3,8 +3,12 @@ import React, {useRef} from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {BASE_URL, DEFAULT_PROTOCOL, API_ENDPOINT} from '../config/settings';
-import {Modalize} from 'react-native-modalize';
+import {
+  BASE_URL,
+  DEFAULT_PROTOCOL,
+  API_ENDPOINT,
+  LOGOUT_IMAGE,
+} from '../config/settings';
 
 import {
   UPDATE_LOADING_SPINNER_STATE,
@@ -185,11 +189,33 @@ export const ajaxCall = async (
       if (response !== null) {
         if (response.status === 404) {
           console.log('no result', response);
-          showErrorSlideUpPanel('Something went Wrong', 'Server not found');
+          showErrorSlideUpPanel(
+            'Something went Wrong',
+            'Server not found',
+            false,
+            LOGOUT_IMAGE,
+            '',
+            () => {},
+            '',
+            () => {},
+            () => {},
+            'OK',
+          );
         }
 
         if (response.status === 401) {
-          showErrorSlideUpPanel('Something went Wrong', 'Server not found');
+          showErrorSlideUpPanel(
+            'Something went Wrong',
+            'Server not found',
+            false,
+            LOGOUT_IMAGE,
+            '',
+            () => {},
+            '',
+            () => {},
+            () => {},
+            'OK',
+          );
           return;
         }
         let responseJson = await response.json();
@@ -204,6 +230,18 @@ export const ajaxCall = async (
           }
         }
       } else {
+        showErrorSlideUpPanel(
+          'Something went Wrong',
+          'Server not found',
+          false,
+          LOGOUT_IMAGE,
+          '',
+          () => {},
+          '',
+          () => {},
+          () => {},
+          'OK',
+        );
         return {success: false, info: 'error.system'};
       }
     } catch (err) {
@@ -214,6 +252,18 @@ export const ajaxCall = async (
           payload: false,
         });
       }
+      showErrorSlideUpPanel(
+        'Something went Wrong',
+        'Server not found',
+        false,
+        LOGOUT_IMAGE,
+        '',
+        () => {},
+        '',
+        () => {},
+        () => {},
+        'OK',
+      );
       return {success: false, info: 'error.system'};
     }
   }
