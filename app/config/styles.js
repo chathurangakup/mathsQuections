@@ -25,6 +25,7 @@ export const colors = {
   green: '#00AE28',
   green1: '#20B2AA',
   red: '#FC0000',
+  darkGreen: '#003300',
 };
 
 export const materialTextFieldStyle = {

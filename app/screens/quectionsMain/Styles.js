@@ -22,7 +22,8 @@ export const styles = StyleSheet.create({
   },
   quectionTextStyle: {
     color: colors.white,
-    fontSize: 20,
+    fontSize: 23,
+    fontWeight: 'bold',
     opacity: 0.6,
     marginRight: 2,
   },
@@ -50,7 +51,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginVertical: 10,
   },
-  animatedbarStyle: {height: 20, borderRadius: 20, backgroundColor: '#009988'},
+  animatedbarStyle: {
+    height: 20,
+    borderRadius: 20,
+    backgroundColor: colors.primaryColor1,
+  },
   wrongAnsStyle: {
     width: 30,
     height: 30,
@@ -155,12 +160,12 @@ export const styles = StyleSheet.create({
     color: colors.white,
     textAlign: 'center',
   },
-  inProgressTxtstyle: {color: colors.blackColor, fontSize: 20, opacity: 0.6},
+  inProgressTxtstyle: {color: colors.white, fontSize: 20, opacity: 0.6},
   InprogressAnimated: {
     width: '100%',
     height: 20,
     borderRadius: 20,
-    backgroundColor: '#000020',
+    backgroundColor: colors.darkGreen,
   },
   floatActionStyle: {
     flex: 1,

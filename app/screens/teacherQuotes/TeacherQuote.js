@@ -123,11 +123,11 @@ const TeacherQuotes = props => {
       </TouchableOpacity>
       <View style={styles.bottomView}>
         <View style={{paddingTop: 40, paddingLeft: 40, paddingBottom: 20}}>
-          <Text style={{color: 'black'}}>Warmly welcome to Ape Iscole</Text>
+          <Text style={{color: 'black'}}>{t('teacherQuote.first')},</Text>
         </View>
         <View
           style={{
-            paddingTop: 40,
+            paddingTop: 20,
             paddingLeft: 40,
             paddingBottom: 20,
             paddingRight: 40,

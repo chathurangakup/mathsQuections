@@ -27,6 +27,7 @@ import Images from '../../config/Images';
 import {AppBar} from '../../components/AppBar';
 import {showErrorSlideUpPanel, showAdverticeModal} from '../../lib/Utils';
 import {LOGOUT_IMAGE} from '../../config/settings';
+import {UPDATE_LOADING_SPINNER_STATE} from '../../actyonTypes/Common';
 
 import {quectionsSet} from '../../config/DefaultJson';
 import {
@@ -397,7 +398,8 @@ const QuectionMain = props => {
   const renderProgressBar = () => {
     return (
       <View>
-        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
+        <View
+          style={{flexDirection: 'row', alignItems: 'flex-end', padding: 5}}>
           <Text style={styles.quectionTextStyle}>
             {currentQuectionIndex + 1}{' '}
           </Text>
@@ -492,6 +494,10 @@ const QuectionMain = props => {
         setImagePath(path);
         setImageFileName(fileName);
         console.log(fileName);
+        global.store.dispatch({
+          type: UPDATE_LOADING_SPINNER_STATE,
+          payload: false,
+        });
         // getUrl(path, fileName);
       }
     });
@@ -499,11 +505,16 @@ const QuectionMain = props => {
 
   const getUrlAndAddCommit = async (path, fileName) => {
     console.log('comment' + comment);
+
     if (comment == '') {
       alert('please add comment');
     } else {
       setIsVisibleModel(false);
       if (fileName !== '' && comment !== '') {
+        global.store.dispatch({
+          type: UPDATE_LOADING_SPINNER_STATE,
+          payload: true,
+        });
         await uploadImage(path, fileName);
       } else if (fileName === '' && comment !== '') {
         let params = {
@@ -601,12 +612,13 @@ const QuectionMain = props => {
               <Text style={styles.ModalizeTextStyle}>Reviews</Text>
               {reviews.map((options, index) => (
                 <View>
-                  <View style={style.reviewRoot}>
+                  <View style={styles.reviewRoot}>
                     <View style={{flex: 1, paddingTop: 10}}>
                       <Image
                         style={styles.reviewImgStyles}
                         source={
-                          options.userInfo[0].image === ''
+                          options.userInfo[0].image === '' ||
+                          options.userInfo[0].image == null
                             ? Images.ProfilePic
                             : {uri: options.userInfo[0].image}
                         }
@@ -691,10 +703,10 @@ const QuectionMain = props => {
   };
 
   const clickRetryBtn = () => {
-    const params = {
-      titleId: titleId,
-    };
-    props.showAdvertice(params);
+    // const params = {
+    //   titleId: titleId,
+    // };
+    // props.showAdvertice(params);
 
     setIsShowMarksModel(false);
     setCurrentQuectionIndex(0);
@@ -821,6 +833,7 @@ const QuectionMain = props => {
         style={styles.mainComp}>
         <AppBar
           navigation={props.navigation}
+          title={t('quectionsMain.title')}
           profilePicImage={
             userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
           }

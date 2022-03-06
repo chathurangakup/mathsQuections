@@ -18,5 +18,21 @@
     "registerBtnText": "Register",
     "text1": "I dont have an account",
     "text2": "I aleady have an account"
+  },
+  "subjects": {
+    "title": "Subjects",
+    "subTitle": "Please select what you want to learn"
+  },
+  "grades": {
+    "title": "Subjects"
+  },
+  "titles": {
+    "title": "Titles"
+  },
+  "teacherQuote": {
+    "first": "Dear childerens"
+  },
+  "quectionsMain": {
+    "title": "Quections"
   }
 }

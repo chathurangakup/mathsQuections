@@ -12,6 +12,7 @@ import {
   TextInput,
 } from 'react-native';
 import {connect} from 'react-redux';
+import {getTranslate} from 'react-localize-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
@@ -25,6 +26,7 @@ const GradesMain = props => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const animated = new Animated.Value(0);
   const duration = 1000;
+  const t = props.translate;
 
   const [gradesData, setGradesData] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
@@ -105,6 +107,7 @@ const GradesMain = props => {
     <SafeAreaView style={styles.root}>
       <AppBar
         navigation={props.navigation}
+        title={t('grades.title')}
         profilePicImage={
           userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
         }
@@ -186,12 +189,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
   },
-  subjName: {color: 'black', fontSize: 25, alignSelf: 'center'},
-  subjSubName: {color: 'black', alignSelf: 'center', padding: 5},
+  subjName: {color: 'black', fontSize: 22, alignSelf: 'center', paddingTop: 15},
 });
 
 const mapStateToProps = state => {
   return {
+    translate: getTranslate(state.localize),
     config: state.grades.gradesConfig,
     loading: state.common.loading,
     userinfo: state.profiledata.profileInfoConfig,

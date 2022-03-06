@@ -18,5 +18,21 @@
     "registerBtnText": "ලියාපදිංචි වන්න",
     "text1": "මට ගිණුමක් නෑ",
     "text2": "මට දැනටත් ගිණුමක් තියනවා"
+  },
+  "subjects": {
+    "title": "විශයන්",
+    "subTitle": "ඔයාට ඉගෙන ගන්න ඕන විෂය තෝරන්න"
+  },
+  "grades": {
+    "title": "ශ්‍රේනි"
+  },
+  "titles": {
+    "title": "පාඩම්"
+  },
+  "teacherQuote": {
+    "first": "ආදරණීය දුවේ පුතේ"
+  },
+  "quectionsMain": {
+    "title": "ගැටළු"
   }
 }

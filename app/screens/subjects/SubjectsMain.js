@@ -11,6 +11,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {connect} from 'react-redux';
+import {getTranslate} from 'react-localize-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
@@ -25,6 +26,7 @@ const {width, height} = Dimensions.get('window');
 const SubjectMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
+  const t = props.translate;
 
   const [subjectData, setSubjectData] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
@@ -101,6 +103,7 @@ const SubjectMain = props => {
       <AppBar
         navigation={props.navigation}
         isShowBack={false}
+        title={t('subjects.title')}
         profilePicImage={
           userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
         }
@@ -113,6 +116,7 @@ const SubjectMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
+        <Text style={styles.subjSubTitle}>{t('subjects.subTitle')}</Text>
       </View>
 
       <View>
@@ -133,7 +137,7 @@ const SubjectMain = props => {
 const styles = StyleSheet.create({
   root: {flex: 1, position: 'relative'},
   subjectItemBtn: {
-    backgroundColor: colors.lightBlue,
+    backgroundColor: colors.darkGreen,
     margin: 10,
     width: width / 2.2,
     height: height / 3.5,
@@ -174,12 +178,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
   },
-  subjName: {color: 'black', fontSize: 25, alignSelf: 'center'},
-  subjSubName: {color: 'black', alignSelf: 'center', padding: 5},
+  subjName: {color: colors.white, fontSize: 25, alignSelf: 'center'},
+  subjSubName: {color: colors.white, alignSelf: 'center', padding: 5},
+  subjSubTitle: {color: colors.white, fontSize: 18, paddingTop: 20},
 });
 
 const mapStateToProps = state => {
   return {
+    translate: getTranslate(state.localize),
     config: state.subjects.subjectsConfig,
     loading: state.common.loading,
     userinfo: state.profiledata.profileInfoConfig,

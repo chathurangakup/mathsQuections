@@ -33,7 +33,7 @@ export const AppBar = props => {
           </TouchableOpacity>
         )}
       </View>
-      <View style={{flex: 5}}>
+      <View style={{flex: 5, alignItems: 'center'}}>
         <Text style={styles.titleStyles}>{props.title}</Text>
       </View>
       <View
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   titleStyles: {
     color: colors.white,
-    fontSize: 20,
+    fontSize: 23,
     padding: 20,
     fontWeight: 'bold',
   },

@@ -11,6 +11,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {connect} from 'react-redux';
+import {getTranslate} from 'react-localize-redux';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
@@ -23,6 +24,7 @@ const {width, height} = Dimensions.get('window');
 const GradesMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
+  const t = props.translate;
 
   const [titleData, setTitlesData] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
@@ -111,6 +113,7 @@ const GradesMain = props => {
     <SafeAreaView style={styles.root}>
       <AppBar
         navigation={props.navigation}
+        title={t('titles.title')}
         profilePicImage={
           userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
         }
@@ -203,6 +206,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
+    translate: getTranslate(state.localize),
     config: state.titles.titlesConfig,
     loading: state.common.loading,
     userinfo: state.profiledata.profileInfoConfig,
