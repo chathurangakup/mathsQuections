@@ -73,11 +73,13 @@ const Profile = props => {
         imgSource.uri = imgSource.uri;
       }
     } else {
-      if (image != null || image != '') {
+      if (image != null) {
         imgSource = {uri: image};
         if (Platform.OS == 'android') {
           imgSource.uri = imgSource.uri;
         }
+      } else {
+        imgSource = Images.ProfilePic;
       }
     }
 
@@ -336,7 +338,7 @@ const Profile = props => {
             </View>
           </View>
 
-          <View style={style.changeLanStyle}>
+          <View style={styles.changeLanStyle}>
             <View style={{flex: 3, paddingLeft: 40}}>
               <Text style={{color: 'black'}}>Change language</Text>
             </View>

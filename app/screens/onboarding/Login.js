@@ -233,7 +233,7 @@ const Login = props => {
       </ImageBackground>
       <View style={styles.bottomView}>
         <View style={{paddingTop: 40, paddingLeft: 40, paddingBottom: 20}}>
-          <Text style={{color: 'black'}}>Warmly welcome to Ape Iscole</Text>
+          <Text style={{color: 'black'}}>{t('login.title')}</Text>
         </View>
 
         <View style={{width: width / 1.2, marginLeft: 40}}>
@@ -285,7 +285,11 @@ const Login = props => {
           <Button
             buttonStyle={{color: colors.primaryColor2}}
             onPressBtn={() => clickLogin()}
-            addText={isHaveAccount ? 'Register' : 'Login'}
+            addText={
+              isHaveAccount
+                ? t('login.registerBtnText')
+                : t('login.loginBtnText')
+            }
           />
         </View>
         <View style={{alignItems: 'center', padding: 20}}>
@@ -304,9 +308,7 @@ const Login = props => {
         <View
           style={{alignSelf: 'center', flexDirection: 'row', paddingTop: 20}}>
           <Text style={{color: 'black'}}>
-            {isHaveAccount
-              ? 'I already have an account'
-              : 'I Dont have account'}
+            {isHaveAccount ? t('login.text2') : t('login.text1')}
           </Text>
           <TouchableOpacity onPress={() => setIsHaveAccount(!isHaveAccount)}>
             <Text
@@ -316,7 +318,9 @@ const Login = props => {
                 paddingBottom: 20,
                 color: colors.red,
               }}>
-              {isHaveAccount ? 'Login' : 'Register'}
+              {isHaveAccount
+                ? t('login.loginBtnText')
+                : t('login.registerBtnText')}
             </Text>
           </TouchableOpacity>
         </View>
