@@ -1,4 +1,4 @@
-package com.chathu.apeiscole;
+package com.chathu.apeiscolelive;
 
 import com.facebook.react.ReactActivity;
 

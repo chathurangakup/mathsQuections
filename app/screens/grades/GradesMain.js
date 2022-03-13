@@ -132,11 +132,11 @@ const GradesMain = props => {
         ) : (
           <FlatList
             data={gradesData}
-            style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
+            style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 350}}
             contentContainerStyle={{alignItems: 'center'}}
-            showsVerticalScrollIndicator={false}
+            // // showsVerticalScrollIndicator={false}
             numColumns={2}
-            // keyExtractor={item=> item.value}
+            keyExtractor={item => item.value}
             renderItem={item => <GradesItem grades={item} />}
           />
         )}

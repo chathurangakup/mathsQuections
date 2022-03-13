@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:738784027490:android:0c65e3a97290f0cbd8823b",
+        "mobilesdk_app_id": "1:738784027490:android:8ba96dbc04848860d8823b",
         "android_client_info": {
-          "package_name": "com.chathu.apeiscole"
+          "package_name": "com.chathu.apeiscolelive"
         }
       },
       "oauth_client": [
