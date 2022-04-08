@@ -13,6 +13,7 @@ import {
 import {
   UPDATE_LOADING_SPINNER_STATE,
   SHOW_ADVERTICE_MODAL,
+  LOGIN,
 } from '../actyonTypes/Common';
 
 export const setConfig = async (key, value) => {
@@ -46,6 +47,16 @@ export const getUserId = async () => {
   const userId = await AsyncStorage.getItem('userId');
   console.log('userId', userId);
   return userId;
+};
+
+export const setEmailInAsync = async userId => {
+  await AsyncStorage.setItem('email', userId);
+};
+
+export const getEmailInAsync = async () => {
+  const email = await AsyncStorage.getItem('email');
+  console.log('userId', email);
+  return email;
 };
 
 export const setLanguageId = async id => {
@@ -206,7 +217,7 @@ export const ajaxCall = async (
         if (response.status === 401) {
           showErrorSlideUpPanel(
             'Something went Wrong',
-            'Server not found',
+            'Auth fail',
             false,
             LOGOUT_IMAGE,
             '',
@@ -216,8 +227,32 @@ export const ajaxCall = async (
             () => {},
             'OK',
           );
+
+          const loginUrl = createUrl('users', 'login');
+          const email = await getEmailInAsync();
+          console.log('emailInAsync', email);
+          let params = {
+            email: email,
+          };
+          const responceLogin = await ajaxCall(
+            loginUrl,
+            params,
+            true,
+            'POST',
+            false,
+          );
+
+          if (responceLogin.success == true) {
+            console.log('responce', responceLogin.userId);
+            setJwttoken(responceLogin.token);
+            setUserId(responceLogin.userId);
+            global.dispatch({type: LOGIN, payload: true});
+            global.navigation.navigate('subjectMain');
+          }
+
           return;
         }
+
         let responseJson = await response.json();
         console.log('responce1', responseJson);
         if (responseJson.success || responseJson.result) {

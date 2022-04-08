@@ -62,9 +62,11 @@ const SubjectMain = props => {
 
   useEffect(() => {
     console.log('subjectsConfig', props.config);
-    if (props.config != undefined) {
-      console.log('subjectsConfig', props.config.data.subjects);
-      setSubjectData(props.config.data.subjects);
+    if (props.config !== undefined) {
+      if (props.config.data !== undefined) {
+        // console.log('subjectsConfig', props.config.data.subjects);
+        setSubjectData(props.config.data.subjects);
+      }
     }
   }, [props.config]);
 
@@ -93,8 +95,10 @@ const SubjectMain = props => {
 
   useEffect(() => {
     if (props.userinfo !== undefined) {
-      setUserInfo(props.userinfo.data.userData);
-      console.log('props.userinfo.userData', props.userinfo.data);
+      if (props.userinfo.data !== undefined) {
+        console.log('props.userinfo.userData', props.userinfo);
+        setUserInfo(props.userinfo.data.userData);
+      }
     }
   }, [props.userinfo]);
 
