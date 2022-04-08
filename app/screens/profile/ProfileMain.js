@@ -73,7 +73,7 @@ const Profile = props => {
         imgSource.uri = imgSource.uri;
       }
     } else {
-      if (image != null) {
+      if (image !== '') {
         imgSource = {uri: image};
         if (Platform.OS == 'android') {
           imgSource.uri = imgSource.uri;
@@ -82,7 +82,6 @@ const Profile = props => {
         imgSource = Images.ProfilePic;
       }
     }
-
     return imgSource;
   };
 
@@ -105,7 +104,12 @@ const Profile = props => {
     console.log('userData', props.userinfo);
     setUsername(props.userinfo.data.userData.userName);
     setRole(props.userinfo.data.userData.role);
-    setImage(props.userinfo.data.userData.image);
+    if (props.userinfo.data.userData.image == null) {
+      setImage('');
+    } else {
+      setImage(props.userinfo.data.userData.image);
+    }
+
     setEmail(props.userinfo.data.userData.email);
     if (props.userinfo.data.userData.role !== 'student') {
       setPhoneNum(props.userinfo.data.userData.phoneno);

@@ -264,14 +264,17 @@ const QuectionMain = props => {
                   },
                 ]}>
                 <View style={{flex: 5}}>
-                  {quections[2].imageAnsList != undefined
-                    ? quections[2].imageAnsList.map((opt, index1) =>
-                        index == index1 ? (
-                          <Image
-                            style={styles.quectionsOpt}
-                            source={{uri: opt}}
-                          />
-                        ) : null,
+                  {quections[currentQuectionIndex].imageAnsList != undefined
+                    ? quections[currentQuectionIndex].imageAnsList.map(
+                        (opt, index1) =>
+                          index == index1 ? (
+                            <Image
+                              style={styles.quectionOpt}
+                              source={{
+                                uri: opt,
+                              }}
+                            />
+                          ) : null,
                       )
                     : null}
                 </View>

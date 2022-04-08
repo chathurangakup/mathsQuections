@@ -16,7 +16,7 @@ import {
   GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import {TextInput} from 'react-native-paper';
+import {TextInput, HelperText} from 'react-native-paper';
 
 import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
 import {LOGOUT_IMAGE} from '../../config/settings';
@@ -29,6 +29,7 @@ import {
   setJwttoken,
   setUserId,
   showErrorSlideUpPanel,
+  validateEmail,
 } from '../../lib/Utils';
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
@@ -85,8 +86,8 @@ const Login = props => {
   const t = props.translate;
   const [email, setEmail] = useState(null);
   const [userName, setUserName] = useState(null);
-  const [isErroeEmail, setIsErrorEmail] = useState(null);
-  const [isErrorUserName, setIsErrorUserName] = useState(null);
+  const [isErroeEmail, setIsErrorEmail] = useState(false);
+  const [isErrorUserName, setIsErrorUserName] = useState(false);
   const [isHaveAccount, setIsHaveAccount] = useState(false);
 
   const setUser = () => {
@@ -165,8 +166,6 @@ const Login = props => {
   };
 
   const clickLogin = async () => {
-    //  props.changeLoginStatus(true);
-    //  props.navigation.navigate('subjectMain');
     const url = createUrl('users', 'signup');
     let params = {
       username: userName,
@@ -180,36 +179,40 @@ const Login = props => {
     // auth.login();
     if (isHaveAccount) {
       if (email == null || userName == null) {
-        alert('Please enter email and username');
+        setIsErrorEmail(true);
+        setIsErrorUserName(true);
       } else {
-        const responce = await ajaxCall(url, params, true, 'POST', false);
-        console.log('responce', responce);
-        console.log('responce', responce);
-        if (responce.result == 'success') {
-          getTokenFunc();
+        if (isErroeEmail !== true) {
+          const responce = await ajaxCall(url, params, true, 'POST', false);
+          console.log('responce', responce);
+          if (responce.result == 'success') {
+            getTokenFunc();
+          }
         }
       }
     } else {
       if (email == null) {
-        alert('Please enter email');
+        setIsErrorEmail(true);
       } else {
-        const responce = await ajaxCall(url, params, true, 'POST', false);
-        console.log('responce', responce);
-        if (responce.result == 'success') {
-          getTokenFunc();
-        } else if (responce.result == 'error') {
-          showErrorSlideUpPanel(
-            'Oops',
-            'You dont have an accout, please Register',
-            false,
-            LOGOUT_IMAGE,
-            'CANCEL',
-            () => {},
-            'Logout',
-            () => {},
-            () => {},
-            'OK',
-          );
+        if (isErroeEmail !== true) {
+          const responce = await ajaxCall(url, params, true, 'POST', false);
+          console.log('responce', responce);
+          if (responce.result == 'success') {
+            getTokenFunc();
+          } else if (responce.result == 'error') {
+            showErrorSlideUpPanel(
+              'Oops',
+              'You dont have an accout, please Register',
+              false,
+              LOGOUT_IMAGE,
+              'CANCEL',
+              () => {},
+              'Logout',
+              () => {},
+              () => {},
+              'OK',
+            );
+          }
         }
       } // isShowUsername false
     }
@@ -222,18 +225,26 @@ const Login = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.isLoggedIn]);
 
+  const checkEmail = () => {
+    let isEmailValidate = validateEmail(email);
+    setIsErrorEmail(!isEmailValidate);
+  };
+
+  const checkUserName = () => {
+    if (userName == '') {
+      setIsErrorUserName(true);
+    } else {
+      setIsErrorUserName(false);
+    }
+  };
+
   return (
     <ScrollView
       style={{flex: 1, backgroundColor: '#fff'}}
       showsHorizontalScrollIndicator={false}>
       <ImageBackground source={Images.Welcome} style={{height: height / 2.5}}>
         <View>
-          <View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              paddingTop: 30,
-            }}>
+          <View style={styles.rootStyle}>
             <LottieView
               source={Lottie.UserProfile}
               autoPlay
@@ -264,30 +275,36 @@ const Login = props => {
             style={{backgroundColor: colors.white}}
             label="Email"
             //value={this.state.otherText}
+            onBlur={text => checkEmail(text)}
             onChangeText={text => setEmail(text)}
             mode={'outlined'}
             numberOfLines={1}
           />
+          <HelperText type="error" visible={isErroeEmail}>
+            Email address is invalid!
+          </HelperText>
           {isHaveAccount ? (
-            <TextInput
-              theme={{
-                colors: {
-                  underlineColor: 'transparent',
-                  // placeholder: colors.npsOutlineTextHeader,
-                  // text: colors.npsOutlineText,
-                },
-              }}
-              style={{
-                backgroundColor: colors.white,
-                marginTop: 20,
-                marginBottom: 30,
-              }}
-              label="UserName"
-              //value={this.state.otherText}
-              onChangeText={text => setUserName(text)}
-              mode={'outlined'}
-              numberOfLines={1}
-            />
+            <View>
+              <TextInput
+                theme={{
+                  colors: {
+                    underlineColor: 'transparent',
+                    // placeholder: colors.npsOutlineTextHeader,
+                    // text: colors.npsOutlineText,
+                  },
+                }}
+                style={styles.usernameTextStyles}
+                label="UserName"
+                //value={this.state.otherText}
+                onBlur={() => checkUserName()}
+                onChangeText={text => setUserName(text)}
+                mode={'outlined'}
+                numberOfLines={1}
+              />
+              <HelperText type="error" visible={isErrorUserName}>
+                Please enter UserName
+              </HelperText>
+            </View>
           ) : null}
         </View>
         <View
@@ -320,19 +337,12 @@ const Login = props => {
           />
         </View>
 
-        <View
-          style={{alignSelf: 'center', flexDirection: 'row', paddingTop: 20}}>
+        <View style={styles.loginBtnRootStyle}>
           <Text style={{color: 'black'}}>
             {isHaveAccount ? t('login.text2') : t('login.text1')}
           </Text>
           <TouchableOpacity onPress={() => setIsHaveAccount(!isHaveAccount)}>
-            <Text
-              style={{
-                color: 'black',
-                paddingLeft: 10,
-                paddingBottom: 20,
-                color: colors.red,
-              }}>
+            <Text style={styles.loginBtnTextStyle}>
               {isHaveAccount
                 ? t('login.loginBtnText')
                 : t('login.registerBtnText')}
@@ -351,6 +361,25 @@ const styles = StyleSheet.create({
     bottom: 40,
     borderTopStartRadius: 60,
     borderTopEndRadius: 60,
+  },
+  loginBtnRootStyle: {
+    alignSelf: 'center',
+    flexDirection: 'row',
+    paddingTop: 20,
+  },
+  loginBtnTextStyle: {
+    paddingLeft: 10,
+    paddingBottom: 20,
+    color: colors.red,
+  },
+  rootStyle: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 30,
+  },
+  usernameTextStyles: {
+    backgroundColor: colors.white,
+    marginTop: 20,
   },
 });
 
