@@ -1,4 +1,4 @@
-package com.chathu.apeiscolelive;
+package com.chathu.apeiscole;
 
 import android.app.Application;
 import android.content.Context;
