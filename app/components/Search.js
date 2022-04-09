@@ -1,8 +1,10 @@
 import React from 'react';
-import {View, StyleSheet, TextInput} from 'react-native';
+import {View, StyleSheet, TextInput, Dimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import {colors} from '../config/styles';
+
+const {width} = Dimensions.get('window');
 
 export const Search = props => {
   return (
@@ -14,7 +16,7 @@ export const Search = props => {
           value={props.value}
           color={colors.blackColor}
           placeholderTextColor={'#345c74'}
-          style={{fontSize: 12, fontFamily: 'bold', width: 280}}
+          style={{fontSize: 12, fontFamily: 'bold', width: width / 1.5}}
         />
         <Icon name="md-search" size={20} color={colors.blackColor} />
       </View>

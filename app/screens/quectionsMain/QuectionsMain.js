@@ -630,7 +630,7 @@ const QuectionMain = props => {
                     <View style={{flex: 4, paddingTop: 5}}>
                       <View style={{flexDirection: 'row'}}>
                         <Text style={{color: 'black', fontWeight: 'bold'}}>
-                          {options.userInfo[0].username}
+                          {options.userInfo[0].userName}
                         </Text>
                         <Text
                           style={{
