@@ -166,6 +166,7 @@ export const styles = StyleSheet.create({
     height: 20,
     borderRadius: 20,
     backgroundColor: colors.darkGreen,
+    marginTop: 35
   },
   floatActionStyle: {
     flex: 1,
@@ -199,7 +200,7 @@ export const styles = StyleSheet.create({
   nextBtnRoot: {
     // height: 85,
     // flex: 6,
-    flexDirection: 'row',
+   
     bottom: 20,
     borderColor: '#555555',
     borderWidth: 0,

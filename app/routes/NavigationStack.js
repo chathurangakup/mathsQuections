@@ -12,6 +12,10 @@ import TeacherQuote from '../screens/teacherQuotes/TeacherQuote';
 import QuectionMain from '../screens/quectionsMain/QuectionsMain';
 import PinchScreen from '../screens/pinchScreen/PinchScreen';
 import ProfileMain from '../screens/profile/ProfileMain';
+import Categories from '../screens/categories/Categories';
+import BattleLevels from '../screens/batttleLevels/BattleLevels';
+
+import {BottomTabs} from './BottomTabNavigation'
 
 const onboardingScreens = {
   splash: {screen: Splash},
@@ -21,13 +25,17 @@ const onboardingScreens = {
 
 const signInScreens = {
   splash: {screen: Splash},
+  bottomTabs: {screen: BottomTabs},
   subjectMain: {screen: SubjectMain},
+  categories: {screen: Categories},
+  battleLevels: {screen: BattleLevels},
   gradesMain: {screen: GradesMain},
   titleMain: {screen: TitleMain},
   teacherQuote: {screen: TeacherQuote},
   quectionMain: {screen: QuectionMain},
   pinchScreen: {screen: PinchScreen},
   profileMain: {screen: ProfileMain},
+ 
 };
 
 const Stack = createNativeStackNavigator();
@@ -47,7 +55,7 @@ export const MainStack = () => {
   }
   return (
     <Stack.Navigator
-      initialRouteName="subjectMain"
+      initialRouteName="bottomTabs"
       screenOptions={{
         gestureEnabled: false,
         headerShown: false,

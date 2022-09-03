@@ -11,6 +11,8 @@ import {
   DELETE_REVIEW_OK,
   SHOW_ADVERTICE,
   SHOW_ADVERTICE_OK,
+  GET_BATTLE_QUECTIONS,
+  GET_BATTLE_QUECTIONS_OK
 } from './QuectionsMainActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
@@ -39,6 +41,34 @@ const getQuections = function* (payload) {
 
 export function* getQuectionsSaga() {
   yield takeLatest(GET_QUECTIONS, getQuections);
+}
+
+
+
+const getBattleQuections = function* (payload) {
+  const language = yield getLanguageId();
+  const updateController = 'battlequections' + language;
+  console.log('quections', payload);
+
+  const response = yield ajaxCall(
+    createUrl(updateController, 'getAllQuection'),
+    payload.payload,
+    true,
+    'POST',
+    true,
+  );
+  console.log('quectionsResp', response);
+
+  yield put({
+    type: GET_BATTLE_QUECTIONS_OK,
+    payload: {
+      data: response,
+    },
+  });
+};
+
+export function* getBattleQuectionsSaga() {
+  yield takeLatest(GET_BATTLE_QUECTIONS, getBattleQuections);
 }
 
 //get reviews

@@ -3,6 +3,7 @@ import {Animated, View, Text, StyleSheet, Dimensions} from 'react-native';
 import {LocalizeProvider} from 'react-localize-redux';
 import {Provider} from 'react-redux';
 import NetInfo from '@react-native-community/netinfo';
+import { PersistGate } from 'redux-persist/integration/react'
 
 import Root from '../app/screens/Root';
 import {NavigationContainer} from '@react-navigation/native';
@@ -18,8 +19,7 @@ import LocalizationHelper from './lib/LocalizationHelper';
 
 import configureStore from './Store';
 
-const store = configureStore();
-
+const {store, persistor} = configureStore();
 global.store = store;
 
 const initialLanguageList = [
@@ -89,6 +89,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
       <LocalizeProvider store={store}>
         <NavigationContainer
           ref={navigationRef}
@@ -101,6 +102,7 @@ const App = () => {
           {_renderNoInternet()}
         </NavigationContainer>
       </LocalizeProvider>
+      </PersistGate>
     </Provider>
   );
 };

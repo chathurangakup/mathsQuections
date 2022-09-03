@@ -4,6 +4,7 @@ import {
   ADD_REVIEW_OK,
   DELETE_REVIEW_OK,
   SHOW_ADVERTICE_OK,
+  GET_BATTLE_QUECTIONS_OK
 } from './QuectionsMainActionTypes';
 
 const initialState = {
@@ -19,6 +20,8 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case GET_QUECTIONS_OK:
       return {...state, quectionsConfig: action.payload};
+     case GET_BATTLE_QUECTIONS_OK:
+        return {...state, quectionsConfig: action.payload};
     case GET_USER_REVIEW_OK:
       return {...state, reviewInfoConfig: action.payload};
     case ADD_REVIEW_OK:

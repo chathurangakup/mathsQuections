@@ -30,7 +30,7 @@ const GradesMain = props => {
 
   const [gradesData, setGradesData] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
-  const {subjectId} = props.route.params;
+  const {subjectId,categoryName} = props.route.params;
 
   useEffect(() => {
     Animated.loop(
@@ -71,10 +71,18 @@ const GradesMain = props => {
       <TouchableOpacity
         activeOpacity={0.0}
         onPress={() => {
-          props.navigation.navigate('titleMain', {
+          if(categoryName=='Learn'){
+            props.navigation.navigate('titleMain', {
             subjectId: subjectId,
             gradesId: grades.item._id,
           });
+          }else{
+            props.navigation.navigate('battleLevels', {
+            subjectId: subjectId,
+            gradesId: grades.item._id,
+          });
+          }
+         
         }}
         style={styles.subjectItemBtn}>
         <Image

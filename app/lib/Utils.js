@@ -13,6 +13,7 @@ import {
 import {
   UPDATE_LOADING_SPINNER_STATE,
   SHOW_ADVERTICE_MODAL,
+  SHOW_SUBJECT_BATTLEMARKS_MODAL,
   LOGIN,
 } from '../actyonTypes/Common';
 
@@ -66,7 +67,7 @@ export const setLanguageId = async id => {
 export const getLanguageId = async () => {
   const languageId = await AsyncStorage.getItem('languageId');
   console.log('languageId', languageId);
-  return languageId;
+  return 'si';
 };
 
 /**
@@ -355,6 +356,24 @@ export const showAdverticeModal = (
       visible: true,
       image,
       link,
+      okPress,
+      okBtnText,
+    },
+  });
+};
+
+
+export const showSubjectBattleMarksModal = (
+  subjectarray,
+  okPress = () => {},
+  okBtnText,
+) => {
+  global.store.dispatch({
+    type: SHOW_SUBJECT_BATTLEMARKS_MODAL,
+    payload: {
+      alertType: 'TYPE_SUBJECT_MODAL',
+      visible: true,
+      subjectarray,
       okPress,
       okBtnText,
     },

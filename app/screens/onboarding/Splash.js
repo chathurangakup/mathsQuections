@@ -35,7 +35,7 @@ const Splash = props => {
     if (token != null) {
       props.changeLoginStatus(true);
       if (props.isLoggedIn) {
-        props.navigation.navigate('subjectMain');
+       props.navigation.navigate('bottomTabs');
       }
     }
   };
@@ -62,7 +62,7 @@ const Splash = props => {
     if (token != null) {
       props.changeLoginStatus(true);
       if (props.isLoggedIn) {
-        props.navigation.navigate('subjectMain');
+       props.navigation.navigate('bottomTabs');
       }
     } else {
       props.navigation.navigate('languageChange');

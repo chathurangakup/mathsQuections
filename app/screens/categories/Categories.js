@@ -17,9 +17,11 @@ import {colors} from '../../config/styles';
 import Images from '../../config/Images';
 import {AppBar} from '../../components/AppBar';
 
-import {GET_SUBJECTS} from './SubjectActionTypes';
-import {GET_USER_INFO} from '../profile/ProfileActionsTypes';
+// import {GET_SUBJECTS} from './SubjectActionTypes';
+// import {GET_USER_INFO} from '../profile/ProfileActionsTypes';
 import {getUserId} from '../../lib/Utils';
+
+
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,6 +29,7 @@ const SubjectMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
   const t = props.translate;
+  const {subjectId} = props.route.params;
 
   const [subjectData, setSubjectData] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
@@ -55,57 +58,71 @@ const SubjectMain = props => {
   };
 
   useEffect(() => {
-    props.getSubjects({});
-    getUserInfoFunction();
+    // props.getSubjects({});
+    // getUserInfoFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     console.log('subjectsConfig', props.config);
-    if (props.config !== undefined) {
-      if (props.config.data !== undefined) {
-        // console.log('subjectsConfig', props.config.data.subjects);
-        setSubjectData(props.config.data.subjects);
-      }
-    }
+    // if (props.config !== undefined) {
+    //   if (props.config.data !== undefined) {
+    //     // console.log('subjectsConfig', props.config.data.subjects);
+
+    //     setSubjectData(props.config.data.subjects);
+
+    //   }
+    // }
+    const data=[
+        {
+            categoryName: "Learn",
+            image: "https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/commonImages%2Fgrade6.jpg?alt=media&token=85a7ee33-9560-4547-8add-94ed9c1b2bea",
+            id: 1,
+        },
+        {
+            categoryName: "Battle",
+            image: "https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/commonImages%2Fgrade6.jpg?alt=media&token=85a7ee33-9560-4547-8add-94ed9c1b2bea",
+            id: 2,
+        },
+    ]
+    setSubjectData(data);
   }, [props.config]);
 
-  const SubjectItem = ({subjects}) => {
+  const SubjectItem = ({categories}) => {
     return (
       <TouchableOpacity
         activeOpacity={0.0}
         onPress={() => {
-          props.navigation.navigate('categories', {
-            subjectId: subjects.item._id,
+          props.navigation.navigate('gradesMain', {
+            subjectId: subjectId,
+            categoryName: categories.item.categoryName
           });
         }}
         style={styles.subjectItemBtn}>
         <Image
           style={styles.subjectItemImgStyle}
           source={{
-            uri: subjects.item.image,
+            uri: categories.item.image,
           }}
         />
-        <Text style={styles.subjName}>{subjects.item.subjectName}</Text>
-        <Text style={styles.subjSubName}>{subjects.item.subjectSubName}</Text>
+        <Text style={styles.subjName}>{categories.item.categoryName}</Text>
       </TouchableOpacity>
     );
   };
 
-  useEffect(() => {
-    if (props.userinfo !== undefined) {
-      if (props.userinfo.data !== undefined) {
-        console.log('props.userinfo.userData', props.userinfo);
-        setUserInfo(props.userinfo.data.userData);
-      }
-    }
-  }, [props.userinfo]);
+//   useEffect(() => {
+//     if (props.userinfo !== undefined) {
+//       if (props.userinfo.data !== undefined) {
+//         console.log('props.userinfo.userData', props.userinfo);
+//         setUserInfo(props.userinfo.data.userData);
+//       }
+//     }
+//   }, [props.userinfo]);
 
   return (
     <SafeAreaView style={styles.root}>
       <AppBar
         navigation={props.navigation}
-        isShowBack={false}
         title={t('subjects.title')}
         profilePicImage={
           userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
@@ -130,7 +147,7 @@ const SubjectMain = props => {
           showsVerticalScrollIndicator={false}
           numColumns={2}
           // keyExtractor={item=> item.value}
-          renderItem={item => <SubjectItem subjects={item} />}
+          renderItem={item => <SubjectItem categories={item} />}
         />
       </View>
   

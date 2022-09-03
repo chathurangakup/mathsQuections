@@ -26,6 +26,7 @@ import {
   PublisherBanner,
   AdMobRewarded,
 } from 'react-native-admob';
+var Sound = require('react-native-sound');
 
 import {colors} from '../../config/styles';
 import {Button} from '../../components/Button';
@@ -38,6 +39,7 @@ import {UPDATE_LOADING_SPINNER_STATE} from '../../actyonTypes/Common';
 import {quectionsSet} from '../../config/DefaultJson';
 import {
   GET_QUECTIONS,
+  GET_BATTLE_QUECTIONS,
   GET_USER_REVIEW,
   ADD_REVIEW,
   DELETE_REVIEW,
@@ -47,9 +49,15 @@ import {styles} from './Styles';
 
 const {width, height} = Dimensions.get('window');
 
+let intervalId;
+Sound.setCategory('Playback');
+const correctDing = new Sound(require("../../assests/sounds/correct.mp3"), Sound.MAIN_BUNDLE, error => console.log(error + "something went wrong"));
+const wrongDing = new Sound(require("../../assests/sounds/wrong.mp3"), Sound.MAIN_BUNDLE, error => console.log(error + "something went wrong"));
+
+
 const QuectionMain = props => {
   const t = props.translate;
-  const {titleId, subjectId, gradesId, teacherId} = props.route.params;
+  const {titleId, subjectId, gradesId, teacherId, catagoryName} = props.route.params;
   const allQuections = quectionsSet;
   const [currentQuectionIndex, setCurrentQuectionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
@@ -66,21 +74,45 @@ const QuectionMain = props => {
   const [comment, setComment] = useState('');
   const [isShowMarksModel, setIsShowMarksModel] = useState(false);
   const [commentImageUrl, setCommentImageUrl] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeCount, setTimeMinuteCount] = useState('00:00');
   let today = new Date();
   let date =
     today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
   let time =
     today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
 
+
+
   const validateAns = selectOption => {
-    let correct_option = quections[currentQuectionIndex].correctAns;
-    setCurrentOptionSelected(selectOption);
-    setCorrectOption(correct_option);
-    // setIsOptionsDisable(true);
-    if (selectOption == correct_option) {
-      setScore(score + 1);
+    if(showNextButton==false){
+      let correct_option = quections[currentQuectionIndex].correctAns;
+      setCurrentOptionSelected(selectOption);
+      setCorrectOption(correct_option);
+      // setIsOptionsDisable(true);
+      if (selectOption == correct_option) {
+        setScore(score + 1);
+        correctDing.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }else{
+        wrongDing.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+  
+      clearInterval(intervalId);
+      setShowNextButton(true);
     }
-    setShowNextButton(true);
+  
   };
 
   const handleNext = () => {
@@ -93,8 +125,18 @@ const QuectionMain = props => {
       // setIsOptionsDisable(false);
       setShowNextButton(false);
     }
+    
+    if(catagoryName=='battle'){
+      if(timeLeft==0){
+        setTimeLeft(1);
+      }else{
+        setTimeLeft(0);
+      }
+    
+      setTimeMinuteCount('00:00')
+    }
     Animated.timing(progress, {
-      toValue: currentQuectionIndex + 1,
+      toValue: catagoryName=='battle'? 0: currentQuectionIndex + 1,
       duration: 1000,
       useNativeDriver: false,
     }).start();
@@ -108,7 +150,12 @@ const QuectionMain = props => {
       titleId: titleId,
       teacherId: teacherId,
     };
-    props.getQuections(params);
+    if(catagoryName == 'battle'){
+      props.getBattleQuections(params);
+    }else{
+      props.getQuections(params);
+    }
+  
     //console.log("subjectsConfig".props.subjectsConfig);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -166,6 +213,14 @@ const QuectionMain = props => {
     }
   }, [props.reviewInfoConfig]);
 
+
+  const convertSeconds=(s)=> {
+    var min = Math.floor (s / 60);
+    var sec = s % 60;
+    return '0'+min + ':' + ("00" + sec).substr(-2);;
+
+  }
+
   useEffect(() => {
     console.log('addReviewConfig', props.addReviewConfig);
     if (props.addReviewConfig != undefined) {
@@ -179,6 +234,43 @@ const QuectionMain = props => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.addReviewConfig]);
+
+
+
+  {catagoryName == 'battle'
+    ? useEffect(() => {
+        intervalId = setInterval(() => {
+          setTimeLeft(timeLeft => timeLeft + 1);
+          setTimeMinuteCount(convertSeconds(timeLeft));
+          Animated.timing(progress, {
+            toValue: timeLeft,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+          console.log('timeLeft', timeLeft);
+        }, 2000);
+
+        if (timeLeft === 120 + 1) {
+          clearInterval(intervalId);
+          wrongDing.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+          handleNext();
+        }
+        return () => clearInterval(intervalId);
+      }, [timeLeft])
+    : null;
+}
+
+
+
+
+
+
 
   const renderOptions = () => {
     return (
@@ -308,6 +400,9 @@ const QuectionMain = props => {
     );
   };
 
+
+
+
   const renderQuections = () => {
     return (
       <View style={{paddingBottom: 30}}>
@@ -356,7 +451,7 @@ const QuectionMain = props => {
   const renderNextButton = () => {
     if (showNextButton) {
       return (
-        <View style={styles.nextBtnRoot}>
+        <View style={[styles.nextBtnRoot, {flexDirection: catagoryName=='battle'? 'column': 'row'}]}>
           <View styles={styles.nxtBtnMain}>
             <TouchableOpacity
               style={styles.nextBtnStyles}
@@ -364,20 +459,22 @@ const QuectionMain = props => {
               <Text style={styles.nextBtnTextStyles}>NEXT</Text>
             </TouchableOpacity>
           </View>
-          <View styles={styles.reviewBtnMain}>
-            <TouchableOpacity
-              style={styles.reviewBtnStyles}
-              onPress={() =>
-                onOpenReviewModel(quections[currentQuectionIndex]?._id)
-              }>
-              <Text style={styles.reviewBtnTextStyles}>
-                {quections[currentQuectionIndex]?.quection == ''
-                  ? ''
-                  : quections[currentQuectionIndex]?.review_count}{' '}
-                Review
-              </Text>
-            </TouchableOpacity>
-          </View>
+          {catagoryName == 'battle' ? null : (
+            <View styles={styles.reviewBtnMain}>
+              <TouchableOpacity
+                style={styles.reviewBtnStyles}
+                onPress={() =>
+                  onOpenReviewModel(quections[currentQuectionIndex]?._id)
+                }>
+                <Text style={styles.reviewBtnTextStyles}>
+                  {quections[currentQuectionIndex]?.quection == ''
+                    ? ''
+                    : quections[currentQuectionIndex]?.review_count}{' '}
+                  Review
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       );
     } else {
@@ -389,6 +486,10 @@ const QuectionMain = props => {
   const progressAnim = progress.interpolate({
     inputRange: [0, quections.length],
     outputRange: ['0%', '100%'],
+  });
+  const progressAnimTime = progress.interpolate({
+    inputRange: [0, 120],
+    outputRange: ['100%', '0%'],
   });
   const modalizeRef = useRef(null);
   const animated = useRef(new Animated.Value(0)).current;
@@ -419,6 +520,43 @@ const QuectionMain = props => {
           <Animated.View
             style={[styles.animatedbarStyle, {width: progressAnim}]}
           />
+        </View>
+      </View>
+    );
+  };
+
+  const renderTimeProgressBar = () => {
+    return (
+      <View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            padding: 5,
+            justifyContent: 'center',
+          }}>
+          {/* <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text> */}
+          <Text style={styles.inProgressTxtstyle}> {timeCount} : {convertSeconds(120)}</Text>
+        </View>
+
+        <View style={styles.InprogressAnimated}>
+          <Animated.View
+            style={[styles.animatedbarStyle, {width: progressAnimTime}]}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            padding: 5,
+            justifyContent: 'center',
+          }}>
+          <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text>
+          <Text style={styles.inProgressTxtstyle}> / {quections.length} </Text>
         </View>
       </View>
     );
@@ -584,6 +722,8 @@ const QuectionMain = props => {
     return imgSource;
   };
 
+  let imgSource;
+
   useEffect(() => {
     if (props.deleteReviewConfig != undefined) {
       console.log('props.deleteReviewConfig', props.deleteReviewConfig);
@@ -592,6 +732,7 @@ const QuectionMain = props => {
       };
       props.getReviews(params);
     }
+     imgSource = getPlatformURI(imagePath);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.deleteReviewConfig]);
 
@@ -746,7 +887,7 @@ const QuectionMain = props => {
   };
 
   const renderaddCommentModel = () => {
-    let imgSource = getPlatformURI(imagePath);
+   
     return (
       <Modal
         animationType="slide"
@@ -851,12 +992,17 @@ const QuectionMain = props => {
           }
         />
         <View style={{marginTop: 60, marginLeft: 20, marginRight: 20}}>
-          {renderProgressBar()}
+          {catagoryName == 'battle'
+            ? renderTimeProgressBar()
+            : renderProgressBar()}
         </View>
 
         <View style={styles.bottomView}>
           {currentQuectionIndex + 1 === 1 ? null : (
-            <Icons
+            catagoryName=='battle'?
+            null
+            :
+              <Icons
               name="back"
               size={30}
               color={colors.blackColor}
@@ -945,6 +1091,9 @@ function mapDispatchToProps(dispatch) {
   return {
     getQuections: payload => {
       dispatch({type: GET_QUECTIONS, payload: payload});
+    },
+    getBattleQuections: payload => {
+      dispatch({type: GET_BATTLE_QUECTIONS, payload: payload});
     },
     getReviews: payload => {
       dispatch({
