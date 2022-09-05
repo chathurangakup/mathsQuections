@@ -1,52 +1,55 @@
 import {put, takeLatest} from 'redux-saga/effects';
 
-import {GET_BATTLE_NUMS, GET_BATTLE_NUMS_OK,GET_USER_BATTLE_MARKS_OK,GET_USER_BATTLE_MARKS} from './BattleMarksActionTypes';
+import { GET_ALL_STUDENTS_INFO, GET_ALL_STUDENTS_INFO_OK, GET_ALL_STUDENTS_MARKS_INFO,GET_ALL_STUDENTS_MARKS_INFO_OK} from './BattleMarksActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
 
-const getReleventUserBattleMarks = function* (payload) {
-  console.log("getBattleNumberspayload", payload)
-  const language = yield getLanguageId();
-  const updateController = 'battlenum' + language;
+
+
+
+const getAllStudentsInfo = function* (payload) {
+  const updateController = 'users';
+  const searchParam = payload;
+  console.log('language', searchParam);
+
   const response = yield ajaxCall(
-    createUrl(updateController, 'releventBattleNumShowTeachers'),
+    createUrl(updateController, 'userRole/' + 'student'),
     payload.payload,
     true,
-    'POST',
+    'GET',
     true,
   );
   yield put({
-    type: GET_BATTLE_NUMS_OK,
+    type: GET_ALL_STUDENTS_INFO_OK,
     payload: {
       data: response,
     },
   });
 };
 
-export function* getReleventUserBattleMarksSaga() {
-  yield takeLatest(GET_BATTLE_NUMS, getReleventUserBattleMarks);
+export function* getAllStudentsInfoSaga() {
+  yield takeLatest(GET_ALL_STUDENTS_INFO, getAllStudentsInfo);
 }
 
 
-// const getReleventUserBattleMarks= function* (payload) {
-//   console.log("getReleventUserBattleMarks", payload)
-//   const language = yield getLanguageId();
-//   const updateController = 'battlemark' + language;
-//   const response = yield ajaxCall(
-//     createUrl(updateController, 'releventUsersBattleMarks'),
-//     payload.payload,
-//     true,
-//     'POST',
-//     true,
-//   );
-//   yield put({
-//     type: GET_USER_BATTLE_MARKS_OK,
-//     payload: {
-//       data: response,
-//     },
-//   });
-// };
+const getAllStudentsMarksInfo = function* (payload) {
+  const language = yield getLanguageId();
+  const updateController = 'battlemark' + language;
+  const response = yield ajaxCall(
+    createUrl(updateController, 'getAllUsersBattlemarks'),
+    payload.payload,
+    true,
+    'POST',
+    true,
+  );
+  yield put({
+    type: GET_ALL_STUDENTS_MARKS_INFO_OK,
+    payload: {
+      data: response,
+    },
+  });
+};
 
-// export function* getReleventUserBattleMarksSaga() {
-//   yield takeLatest(GET_USER_BATTLE_MARKS, getReleventUserBattleMarks);
-//}
+export function* getAllStudentsMarksInfoSaga() {
+  yield takeLatest(GET_ALL_STUDENTS_MARKS_INFO, getAllStudentsMarksInfo);
+}

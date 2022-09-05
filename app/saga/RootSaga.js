@@ -2,6 +2,7 @@ import {all} from 'redux-saga/effects';
 
 import {getSubjectsSaga} from '../screens/subjects/SubjectActions';
 import {getBattleNumbersSaga, getReleventUserBattleMarksSaga} from '../screens/batttleLevels/BattleActions';
+import {getAllStudentsInfoSaga,getAllStudentsMarksInfoSaga} from '../screens/battleMarks/BattleMarksActions';
 import {getGradesSaga} from '../screens/grades/GradesActions';
 import {getTitlesSaga} from '../screens/titles/TitleActions';
 import {getTeachersQuotesSaga} from '../screens/teacherQuotes/TeachersQuotesActions';
@@ -36,6 +37,8 @@ export default function* rootSaga() {
     showAdverticeSaga(),
     getBattleNumbersSaga(),
     getReleventUserBattleMarksSaga(),
+    getAllStudentsInfoSaga(),
+    getAllStudentsMarksInfoSaga()
   ]);
 }
 

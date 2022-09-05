@@ -9,10 +9,11 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {getTranslate} from 'react-localize-redux';
+var sortBy = require('lodash').sortBy;
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
@@ -22,32 +23,30 @@ import {GET_BATTLE_NUMS, GET_USER_BATTLE_MARKS} from './BattleActionTypes';
 import {GET_USER_INFO} from '../profile/ProfileActionsTypes';
 import {getUserId} from '../../lib/Utils';
 
-
-
-
 const {width, height} = Dimensions.get('window');
 
 const SubjectMain = props => {
   const animated = new Animated.Value(0);
   const duration = 1000;
   const t = props.translate;
-  const {subjectId,gradesId} = props.route.params;
+  const {subjectId, gradesId} = props.route.params;
 
-//   let commonArray=[
-// {battleName: "1",
-// battleNumber: 1,
-// gradesId: "61f6493910c3e78e03c6df4e",
-// isLocked: true,
-// isShowStudents: false,
-// isShowTeachers: true,
-// subjectId: "62245b0704bfaee17214ac08",
-// teachersId: "61e2b2ee234bfec7a1bc8a2d",
-// _id: "6309836992441659337cf69f"}
-//   ];
+  //   let commonArray=[
+  // {battleName: "1",
+  // battleNumber: 1,
+  // gradesId: "61f6493910c3e78e03c6df4e",
+  // isLocked: true,
+  // isShowStudents: false,
+  // isShowTeachers: true,
+  // subjectId: "62245b0704bfaee17214ac08",
+  // teachersId: "61e2b2ee234bfec7a1bc8a2d",
+  // _id: "6309836992441659337cf69f"}
+  //   ];
 
   const [battlenumData, setBattleNumData] = useState([]);
   const [userBattleMarks, setuserbattleMarksData] = useState([]);
   const [commonArray, setCommonArray] = useState([]);
+  const [commonArrayASO, setCommonArrayASO] = useState([]);
   const [userInfo, setUserInfo] = useState(null);
 
   // useEffect(() => {
@@ -73,16 +72,14 @@ const SubjectMain = props => {
     props.getUserInfo(userId);
   };
 
-
-
   useEffect(() => {
-    const userBattleMarksObj={
-        "subjectId": '62245b0704bfaee17214ac08',
-        "gradesId": '61f6493910c3e78e03c6df4e',
-        "userId": "61e826fcf719c471f396846b"
-    }
-     props.getReleventUserBattleMarks(userBattleMarksObj)
-     getUserInfoFunction();
+    const userBattleMarksObj = {
+      subjectId: subjectId,
+      gradesId: '61f6493910c3e78e03c6df4e',
+      userId: "62f874e87be1bdc149c23d4d",
+    };
+    props.getReleventUserBattleMarks(userBattleMarksObj);
+    getUserInfoFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -90,101 +87,139 @@ const SubjectMain = props => {
     console.log('getReleventUserBattleMarks', props.userBattlenInfoConfig);
     if (props.userBattlenInfoConfig !== undefined) {
       if (props.userBattlenInfoConfig.data !== undefined) {
-        console.log('getReleventUserBattleMarks', props.userBattlenInfoConfig.data.result);
-        setuserbattleMarksData(props.userBattlenInfoConfig.data.result)
-        const battleNumObj={
-          "subjectId": '62245b0704bfaee17214ac08',
-          "gradesId": '61f6493910c3e78e03c6df4e',
-      }
+        console.log(
+          'getReleventUserBattleMarks',
+          props.userBattlenInfoConfig.data.result,
+        );
+        setuserbattleMarksData(props.userBattlenInfoConfig.data.result);
+        const battleNumObj = {
+          subjectId: subjectId,
+          gradesId: '61f6493910c3e78e03c6df4e',
+        };
         props.getBattleNumbers(battleNumObj);
       }
     }
   }, [props.userBattlenInfoConfig]);
 
- 
   useEffect(() => {
-     setCommonArray([])
-    
+    setCommonArray([]);
+
     if (props.battlenumConfig !== undefined && props !== undefined) {
       if (props.battlenumConfig.data !== undefined) {
-        console.log('battlenumConfig', props.battlenumConfig.data.result.length);
-        setBattleNumData(props.battlenumConfig.data.result)
-         for(let i = 0; i < props.battlenumConfig.data.result.length; i++){
-             for(let j = 0; j < userBattleMarks.length; j++){
-              if(i==0){
-                let arrayObj={
-                  battleName: props.battlenumConfig.data.result[i].battleName,
-                  battleNumber: props.battlenumConfig.data.result[i].battleNumber,
-                  gradesId: props.battlenumConfig.data.result[i].gradesId,
-                  isShowStudents: props.battlenumConfig.data.result[i].isShowStudents,
-                  isShowTeachers: props.battlenumConfig.data.result[i].isShowTeachers,
-                  subjectId: props.battlenumConfig.data.result[i].subjectId,
-                  teachersId: props.battlenumConfig.data.result[i].teachersId,
-                  _id: props.battlenumConfig.data.result[i]._id,
-                  isLocked: false
-                 }
-                 setCommonArray(commonArray =>[...commonArray, arrayObj]);
-              }else if(props.battlenumConfig.data.result[i]._id === userBattleMarks[j].battleId){
-                     let arrayObj={
-                      battleName: props.battlenumConfig.data.result[i].battleName,
-                      battleNumber: props.battlenumConfig.data.result[i].battleNumber,
-                      gradesId: props.battlenumConfig.data.result[i].gradesId,
-                      isShowStudents: props.battlenumConfig.data.result[i].isShowStudents,
-                      isShowTeachers: props.battlenumConfig.data.result[i].isShowTeachers,
-                      subjectId: props.battlenumConfig.data.result[i].subjectId,
-                      teachersId: props.battlenumConfig.data.result[i].teachersId,
-                      _id: props.battlenumConfig.data.result[i]._id,
-                      isLocked: false
-                     }
-                     setCommonArray(commonArray =>[...commonArray, arrayObj]);
-                  }else{
-                    let arrayObj={
-                      battleName: props.battlenumConfig.data.result[i].battleName,
-                      battleNumber: props.battlenumConfig.data.result[i].battleNumber,
-                      gradesId: props.battlenumConfig.data.result[i].gradesId,
-                      isShowStudents: props.battlenumConfig.data.result[i].isShowStudents,
-                      isShowTeachers: props.battlenumConfig.data.result[i].isShowTeachers,
-                      subjectId: props.battlenumConfig.data.result[i].subjectId,
-                      teachersId: props.battlenumConfig.data.result[i].teachersId,
-                      _id: props.battlenumConfig.data.result[i]._id,
-                      isLocked: false
-                     }
-                     setCommonArray(commonArray =>[...commonArray, arrayObj]);
+        // console.log('battlenumConfig', props.battlenumConfig.data.result);
+        // console.log('userBattleMarks', userBattleMarks);
+        setBattleNumData(props.battlenumConfig.data.result);
+        let arrayObj = {
+          battleName: props.battlenumConfig.data.result[0].battleName,
+          battleNumber: props.battlenumConfig.data.result[0].battleNumber,
+          gradesId: props.battlenumConfig.data.result[0].gradesId,
+          isShowStudents:
+            props.battlenumConfig.data.result[0].isShowStudents,
+          isShowTeachers:
+            props.battlenumConfig.data.result[0].isShowTeachers,
+          subjectId: props.battlenumConfig.data.result[0].subjectId,
+          teachersId: props.battlenumConfig.data.result[0].teachersId,
+          _id: props.battlenumConfig.data.result[0]._id,
+          isLocked: false,
+        };
+        setCommonArray(commonArray => [...commonArray, arrayObj]);
 
-                  }
-             }
-         }
-         console.log("commonArray", commonArray)
-      // setBattleNumData(props.config.data.result)
+
+        
+        for (let i = 1; i < props.battlenumConfig.data.result.length; i++) {
+
+          console.log('userBattleMarks1', userBattleMarks);
+          if (userBattleMarks.length == 0) {
+            console.log('userBattleMarks', userBattleMarks);
+            let arrayObj = {
+              battleName: props.battlenumConfig.data.result[i].battleName,
+              battleNumber: props.battlenumConfig.data.result[i].battleNumber,
+              gradesId: props.battlenumConfig.data.result[i].gradesId,
+              isShowStudents:
+                props.battlenumConfig.data.result[i].isShowStudents,
+              isShowTeachers:
+                props.battlenumConfig.data.result[i].isShowTeachers,
+              subjectId: props.battlenumConfig.data.result[i].subjectId,
+              teachersId: props.battlenumConfig.data.result[i].teachersId,
+              _id: props.battlenumConfig.data.result[i]._id,
+              isLocked: true,
+            };
+            setCommonArray(commonArray => [...commonArray, arrayObj]);
+          } else {
+            for (let j = 0; j < userBattleMarks.length; j++) {
+              if (userBattleMarks[j].battleId !== undefined) {
+                if (
+                  props.battlenumConfig.data.result[i]._id ===
+                  userBattleMarks[j].battleId
+                ) {
+                  let arrayObj = {
+                    battleName: props.battlenumConfig.data.result[i].battleName,
+                    battleNumber:
+                      props.battlenumConfig.data.result[i].battleNumber,
+                    gradesId: props.battlenumConfig.data.result[i].gradesId,
+                    isShowStudents:
+                      props.battlenumConfig.data.result[i].isShowStudents,
+                    isShowTeachers:
+                      props.battlenumConfig.data.result[i].isShowTeachers,
+                    subjectId: props.battlenumConfig.data.result[i].subjectId,
+                    teachersId: props.battlenumConfig.data.result[i].teachersId,
+                    _id: props.battlenumConfig.data.result[i]._id,
+                    isLocked: false,
+                  };
+                  setCommonArray(commonArray => [...commonArray, arrayObj]);
+                } else {
+                  let arrayObj = {
+                    battleName: props.battlenumConfig.data.result[i].battleName,
+                    battleNumber:
+                      props.battlenumConfig.data.result[i].battleNumber,
+                    gradesId: props.battlenumConfig.data.result[i].gradesId,
+                    isShowStudents:
+                      props.battlenumConfig.data.result[i].isShowStudents,
+                    isShowTeachers:
+                      props.battlenumConfig.data.result[i].isShowTeachers,
+                    subjectId: props.battlenumConfig.data.result[i].subjectId,
+                    teachersId: props.battlenumConfig.data.result[i].teachersId,
+                    _id: props.battlenumConfig.data.result[i]._id,
+                    isLocked: true,
+                  };
+                  setCommonArray(commonArray => [...commonArray, arrayObj]);
+                }
+              }
+            }
+          }
+        }
+        console.log('commonArray', commonArray);
+        // setBattleNumData(props.config.data.result)
       }
     }
- 
-   // setSubjectData(data);
   }, [props.battlenumConfig]);
 
   const BattleItems = ({categories}) => {
-    console.log("categories",categories)
+    console.log('categories', categories);
     return (
       <TouchableOpacity
         activeOpacity={0.0}
-         onPress={() => {
-          categories.item.isLocked==false?
-          props.navigation.navigate('quectionMain', {
-            titleId: categories.item._id,
-            subjectId: subjectId,
-            gradesId: gradesId,
-            teacherId: categories.item.teachersId,
-            catagoryName:'battle'
-         })
-         :
-         null
+        onPress={() => {
+          categories.item.isLocked == false
+            ? props.navigation.navigate('quectionMain', {
+                titleId: categories.item._id,
+                subjectId: subjectId,
+                gradesId: gradesId,
+                teacherId: categories.item.teachersId,
+                catagoryName: 'battle',
+              })
+            : null;
 
           // props.navigation.navigate('gradesMain', {
           //   subjectId: subjectId,
           //   // categoryName: categories.item.categoryName
           // });
         }}
-        style={[ categories.item.isLocked==false?styles.subjectItemBtn:styles.subjectItemBtnDisable]}>
+        style={[
+          categories.item.isLocked == false
+            ? styles.subjectItemBtn
+            : styles.subjectItemBtnDisable,
+        ]}>
         {/* <Image
           style={styles.subjectItemImgStyle}
           source={{
@@ -222,10 +257,9 @@ const SubjectMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <ScrollView style={{marginBottom:20}}>
-           <Text style={styles.subjSubTitle}>{t('battles.subTitle')}</Text>
+        <ScrollView style={{marginBottom: 20}}>
+          <Text style={styles.subjSubTitle}>{t('battles.subTitle')}</Text>
         </ScrollView>
-       
       </View>
 
       <View>
@@ -239,7 +273,6 @@ const SubjectMain = props => {
           renderItem={item => <BattleItems categories={item} />}
         />
       </View>
-  
     </SafeAreaView>
   );
 };
@@ -248,24 +281,24 @@ const styles = StyleSheet.create({
   root: {flex: 1, position: 'relative'},
   subjectItemBtn: {
     backgroundColor: colors.darkGreen,
-    justifyContent:'center',
+    justifyContent: 'center',
     margin: 10,
     width: width / 4,
     height: width / 4,
     borderRadius: 10,
-    borderRadius:50,
+    borderRadius: 50,
     // padding: 15,
     shadow: '#9e9808',
     elevation: 5,
   },
   subjectItemBtnDisable: {
     backgroundColor: 'gray',
-    justifyContent:'center',
+    justifyContent: 'center',
     margin: 10,
     width: width / 4,
     height: width / 4,
     borderRadius: 10,
-    borderRadius:50,
+    borderRadius: 50,
     // padding: 15,
     shadow: '#9e9808',
     elevation: 5,
@@ -302,7 +335,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
   },
-  subjName: {color: colors.white, fontSize: 25, alignSelf: 'center', alignSelf:'center'},
+  subjName: {
+    color: colors.white,
+    fontSize: 25,
+    alignSelf: 'center',
+    alignSelf: 'center',
+  },
   subjSubName: {color: colors.white, alignSelf: 'center', padding: 5},
   subjSubTitle: {color: colors.white, fontSize: 18, paddingTop: 20},
 });

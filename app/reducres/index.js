@@ -4,6 +4,7 @@ import Common from './Common';
 
 import Subjects from '../screens/subjects/SubjectReducers';
 import BattleNums from '../screens/batttleLevels/BattleReducers';
+import BattleMarks from '../screens/battleMarks/BattleMarksReducers';
 import Grades from '../screens/grades/GradesReducers';
 import Titles from '../screens/titles/TitleReducers';
 import TeacherQuote from '../screens/teacherQuotes/TeachersQuotesReducers';
@@ -19,5 +20,6 @@ export default combineReducers({
   teacherquote: TeacherQuote,
   quectionmain: QuectionMain,
   profiledata: ProfileMain,
-  battlenums: BattleNums
+  battlenums: BattleNums,
+  battlemarks: BattleMarks
 });

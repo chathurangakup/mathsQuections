@@ -1,20 +1,20 @@
 import {
-  GET_BATTLE_NUMS_OK,
-  GET_USER_BATTLE_MARKS_OK,
+  GET_ALL_STUDENTS_INFO_OK,
+  GET_ALL_STUDENTS_MARKS_INFO_OK
 } from './BattleMarksActionTypes';
 
 const initialState = {
   defaultResult: 0,
-  battlenumConfig: undefined,
-  userBattlenInfoConfig:undefined
+  allStudentsInfoConfig: undefined,
+  allStudentsMarksInfoConfig:undefined
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
-    case GET_BATTLE_NUMS_OK:
-      return {...state, battlenumConfig: action.payload};
-    case GET_USER_BATTLE_MARKS_OK:
-      return {...state, userBattlenInfoConfig: action.payload};
+    case GET_ALL_STUDENTS_INFO_OK:
+      return {...state, allStudentsInfoConfig: action.payload};
+    case GET_ALL_STUDENTS_MARKS_INFO_OK:
+      return {...state, allStudentsMarksInfoConfig: action.payload};
     default:
       return state;
   }
