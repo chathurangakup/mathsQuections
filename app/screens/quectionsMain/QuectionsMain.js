@@ -20,12 +20,12 @@ import Icons from 'react-native-vector-icons/AntDesign';
 import {Modalize} from 'react-native-modalize';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {
-  AdMobBanner,
-  AdMobInterstitial,
-  PublisherBanner,
-  AdMobRewarded,
-} from 'react-native-admob';
+// import {
+//   AdMobBanner,
+//   AdMobInterstitial,
+//   PublisherBanner,
+//   AdMobRewarded,
+// } from 'react-native-admob';
 
 import {colors} from '../../config/styles';
 import {Button} from '../../components/Button';
@@ -726,9 +726,9 @@ const QuectionMain = props => {
     setShowNextButton(false);
 
     setProgress(new Animated.Value(0));
-    AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
-    AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-    AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    // AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+    // AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+    // AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
   };
 
   const clickGotoNectBtn = () => {
