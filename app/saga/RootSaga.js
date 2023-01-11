@@ -13,6 +13,7 @@ import {
   addReviewSaga,
   deleteReviewSaga,
   showAdverticeSaga,
+  addBattleMarksSaga
 } from '../screens/quectionsMain/QuectionsMainActions';
 import {
   getUserInfoSaga,
@@ -38,7 +39,8 @@ export default function* rootSaga() {
     getBattleNumbersSaga(),
     getReleventUserBattleMarksSaga(),
     getAllStudentsInfoSaga(),
-    getAllStudentsMarksInfoSaga()
+    getAllStudentsMarksInfoSaga(),
+    addBattleMarksSaga()
   ]);
 }
 

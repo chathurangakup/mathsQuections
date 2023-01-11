@@ -253,9 +253,9 @@ export const ajaxCall = async (
 
           return;
         }
-
+        console.log('responce1', response);
         let responseJson = await response.json();
-        console.log('responce1', responseJson);
+      
         if (responseJson.success || responseJson.result) {
           return responseJson;
         } else {

@@ -75,8 +75,12 @@ const SubjectMain = props => {
       <TouchableOpacity
         activeOpacity={0.0}
         onPress={() => {
-          props.navigation.navigate('categories', {
+          // props.navigation.navigate('categories', {
+          //   subjectId: subjects.item._id,
+          // });
+          props.navigation.navigate('gradesMain', {
             subjectId: subjects.item._id,
+            categoryName: 'Learn'
           });
         }}
         style={styles.subjectItemBtn}>

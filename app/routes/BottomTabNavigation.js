@@ -16,7 +16,7 @@ const Tab = createBottomTabNavigator();
 
 const TabArr=[
   { route: 'Home', label: 'Home', type: Icons.Feather, icon: 'home', component: SubjectMain },
-  { route: 'Levels', label: 'Battle Marks', type: Icons.Ionicons, icon: 'md-checkmark-done-circle', component: BattleMarks },
+  // { route: 'Levels', label: 'Battle Marks', type: Icons.Ionicons, icon: 'md-checkmark-done-circle', component: BattleMarks },
   { route: 'Profile', label: 'Profile', type: Icons.AntDesign, icon: 'setting', component: ProfileMain },
   // { route: 'Search', label: 'Search', type: Icons.MaterialCommunityIcons, activeIcon: 'timeline-plus', inActiveIcon: 'timeline-plus-outline', component: ColorScreen },
   // { route: 'Account', label: 'Account', type: Icons.FontAwesome, activeIcon: 'user-circle', inActiveIcon: 'user-circle-o', component: ColorScreen },

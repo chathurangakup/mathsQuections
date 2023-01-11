@@ -20,12 +20,12 @@ import Icons from 'react-native-vector-icons/AntDesign';
 import {Modalize} from 'react-native-modalize';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
-import {
-  AdMobBanner,
-  AdMobInterstitial,
-  PublisherBanner,
-  AdMobRewarded,
-} from 'react-native-admob';
+// import {
+//   AdMobBanner,
+//   AdMobInterstitial,
+//   PublisherBanner,
+//   AdMobRewarded,
+// } from 'react-native-admob';
 var Sound = require('react-native-sound');
 
 import {colors} from '../../config/styles';
@@ -44,6 +44,7 @@ import {
   ADD_REVIEW,
   DELETE_REVIEW,
   SHOW_ADVERTICE,
+  ADD_BATTLE_MARKS,
 } from './QuectionsMainActionTypes';
 import {styles} from './Styles';
 
@@ -57,7 +58,7 @@ const wrongDing = new Sound(require("../../assests/sounds/wrong.mp3"), Sound.MAI
 
 const QuectionMain = props => {
   const t = props.translate;
-  const {titleId, subjectId, gradesId, teacherId, catagoryName} = props.route.params;
+  const {titleId, subjectId, gradesId, teacherId, catagoryName, titleName} = props.route.params;
   const allQuections = quectionsSet;
   const [currentQuectionIndex, setCurrentQuectionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
@@ -857,7 +858,31 @@ const QuectionMain = props => {
     //   titleId: titleId,
     // };
     // props.showAdvertice(params);
-
+    if(catagoryName == 'battle'){
+       const params = {
+         subjectId: subjectId,
+         gradesId: gradesId,
+         battleId: titleId,
+         userId: userInfo ? userInfo._id : null,
+         battleName: titleName,
+         battleNumber: parseInt(titleName),
+         battleMarks: score,
+       };
+       console.log(params)
+     props.addBattleMarks(params);
+      setIsShowMarksModel(false);
+      setCurrentQuectionIndex(0);
+      setScore(0);
+  
+      setCurrentOptionSelected(null);
+      setCorrectOption(null);
+      setShowNextButton(false);
+  
+      setProgress(new Animated.Value(0));
+      // AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+      // AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+      // AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }else{
     setIsShowMarksModel(false);
     setCurrentQuectionIndex(0);
     setScore(0);
@@ -867,10 +892,31 @@ const QuectionMain = props => {
     setShowNextButton(false);
 
     setProgress(new Animated.Value(0));
-    AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
-    AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
-    AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    // AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+    // AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+    // AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }
+
+   
   };
+
+  useEffect(()=>{
+    if(props.addBattleMarksConfig!=undefined){
+        console.log("addBattleMarksConfig",props.addBattleMarksConfig) 
+        setIsShowMarksModel(false);
+        setCurrentQuectionIndex(0);
+        setScore(0);
+    
+        setCurrentOptionSelected(null);
+        setCorrectOption(null);
+        setShowNextButton(false);
+    
+        setProgress(new Animated.Value(0));
+        AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+        AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }
+  },[props.addBattleMarksConfig]);
 
   const clickGotoNectBtn = () => {
     setIsShowMarksModel(false);
@@ -1084,6 +1130,7 @@ const mapStateToProps = (state, props) => {
     deleteReviewConfig: state.quectionmain.deleteReviewConfig,
     userinfo: state.profiledata.profileInfoConfig,
     showAdverticeConfig: state.quectionmain.showAdverticeConfig,
+    addBattleMarksConfig: state.quectionmain.addBattleMarksConfig
   };
 };
 
@@ -1118,6 +1165,12 @@ function mapDispatchToProps(dispatch) {
     showAdvertice: payload => {
       dispatch({
         type: SHOW_ADVERTICE,
+        payload: payload,
+      });
+    },
+    addBattleMarks: payload => {
+      dispatch({
+        type: ADD_BATTLE_MARKS,
         payload: payload,
       });
     },

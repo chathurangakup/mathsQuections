@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, Platform, Text} from 'react-native';
 import {connect} from 'react-redux';
-import {
-  AdMobBanner,
-  AdMobInterstitial,
-  PublisherBanner,
-  AdMobRewarded,
-} from 'react-native-admob';
+// import {
+//   AdMobBanner,
+//   AdMobInterstitial,
+//   PublisherBanner,
+//   AdMobRewarded,
+// } from 'react-native-admob';
 
 import {Onboarding, MainStack} from '../routes/NavigationStack';
 import LocalizationHelper, {
@@ -56,12 +56,12 @@ const Root = props => {
         {loggingStatus == false ? <Onboarding /> : <MainStack />}
 
         <SlideUpPanel />
-        <AdMobBanner
+        {/* <AdMobBanner
           adSize="fullBanner"
-          adUnitID="ca-app-pub-3940256099942544/1033173712"
+          adUnitID="ca-app-pub-2295070264667994/3016343980"
           testDevices={[AdMobBanner.simulatorId]}
           onAdFailedToLoad={error => console.error(error)}
-        />
+        /> */}
         <AdvertiseModel />
       </View>
     );

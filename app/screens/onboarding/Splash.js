@@ -18,6 +18,8 @@ import Lottie from '../../config/Lottie';
 import {colors} from '../../config/styles';
 import {getJwttoken} from '../../lib/Utils';
 import {LOGIN} from '../../actyonTypes/Common';
+import {setLanguageId} from '../../lib/Utils';
+import LocalizationHelper from '../../lib/LocalizationHelper';
 
 const {width} = Dimensions.get('window');
 
@@ -55,6 +57,14 @@ const Splash = props => {
   //   }
   // }, []);
 
+  const _changeLanguage = (selectedLangCode, needInit, langList) => {
+    LocalizationHelper.prototype.changeAppLanguage(
+      selectedLangCode,
+      needInit,
+      langList,
+    );
+  };
+
   const clickNextBtn = async () => {
     const token = await getJwttoken();
     console.log('token1', token);
@@ -65,7 +75,10 @@ const Splash = props => {
        props.navigation.navigate('bottomTabs');
       }
     } else {
-      props.navigation.navigate('languageChange');
+      //props.navigation.navigate('languageChange'); // removed  language change page, use sinhala as default
+      setLanguageId('si');
+      _changeLanguage('si', true, false);
+      props.navigation.navigate('login');
     }
   };
 

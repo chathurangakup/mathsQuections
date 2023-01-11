@@ -12,7 +12,9 @@ import {
   SHOW_ADVERTICE,
   SHOW_ADVERTICE_OK,
   GET_BATTLE_QUECTIONS,
-  GET_BATTLE_QUECTIONS_OK
+  GET_BATTLE_QUECTIONS_OK,
+  ADD_BATTLE_MARKS,
+  ADD_BATTLE_MARKS_OK
 } from './QuectionsMainActionTypes';
 
 import {createUrl, ajaxCall, getLanguageId} from '../../lib/Utils';
@@ -173,4 +175,31 @@ const showAdvertice = function* (payload) {
 
 export function* showAdverticeSaga() {
   yield takeLatest(SHOW_ADVERTICE, showAdvertice);
+}
+
+
+//add battle marks
+const addBattleMarks = function* (payload) {
+  const language = yield getLanguageId();
+  const updateController = 'battlemark' + language;
+  const searchParam = payload;
+  console.log('language', searchParam);
+
+  const response = yield ajaxCall(
+    createUrl(updateController, '/addUsersBattleMarks'),
+    payload.payload,
+    true,
+    'POST',
+    true,
+  );
+  yield put({
+    type: ADD_BATTLE_MARKS_OK,
+    payload: {
+      data: response,
+    },
+  });
+};
+
+export function* addBattleMarksSaga() {
+  yield takeLatest(ADD_BATTLE_MARKS, addBattleMarks);
 }

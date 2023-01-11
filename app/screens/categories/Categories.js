@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import {connect} from 'react-redux';
 import {getTranslate} from 'react-localize-redux';
+import LottieView from 'lottie-react-native';
 
 import {colors} from '../../config/styles';
 import Images from '../../config/Images';
@@ -20,6 +21,7 @@ import {AppBar} from '../../components/AppBar';
 // import {GET_SUBJECTS} from './SubjectActionTypes';
 // import {GET_USER_INFO} from '../profile/ProfileActionsTypes';
 import {getUserId} from '../../lib/Utils';
+import Lottie from '../../config/Lottie';
 
 
 
@@ -61,6 +63,11 @@ const SubjectMain = props => {
     // props.getSubjects({});
     // getUserInfoFunction();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    props.navigation.navigate('gradesMain', {
+      subjectId: subjectId,
+      categoryName: 'Learn'
+    });
+
   }, []);
 
   useEffect(() => {
@@ -76,12 +83,14 @@ const SubjectMain = props => {
     const data=[
         {
             categoryName: "Learn",
-            image: "https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/commonImages%2Fgrade6.jpg?alt=media&token=85a7ee33-9560-4547-8add-94ed9c1b2bea",
+            categorySubName: "ඔයාට අවශ්‍ය විෂය කරුණු ඉගෙන ගන්න මේකට යන්න",
+            image: Lottie.Learn,
             id: 1,
         },
         {
-            categoryName: "Battle",
-            image: "https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/commonImages%2Fgrade6.jpg?alt=media&token=85a7ee33-9560-4547-8add-94ed9c1b2bea",
+           categoryName: "Battle",
+           categorySubName: "ඔයාගේ දැනුම අනිත්‍ යාළුවෝ එක්ක සංසන්දනය කරන්න මේකට යන්න",
+            image: Lottie.Battle,
             id: 2,
         },
     ]
@@ -99,13 +108,20 @@ const SubjectMain = props => {
           });
         }}
         style={styles.subjectItemBtn}>
-        <Image
+        {/* <Image
           style={styles.subjectItemImgStyle}
           source={{
             uri: categories.item.image,
           }}
-        />
+        /> */}
+        <LottieView
+              source={categories.item.image}
+              autoPlay
+              loop
+              style={styles.subjectItemImgStyle}
+            />
         <Text style={styles.subjName}>{categories.item.categoryName}</Text>
+        <Text style={styles.subjSubName}>{categories.item.categorySubName}</Text>
       </TouchableOpacity>
     );
   };
@@ -123,7 +139,7 @@ const SubjectMain = props => {
     <SafeAreaView style={styles.root}>
       <AppBar
         navigation={props.navigation}
-        title={t('subjects.title')}
+        title={t('categories.title')}
         profilePicImage={
           userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
         }
@@ -136,13 +152,13 @@ const SubjectMain = props => {
             style={[styles.animateIcon, {transform: [{translateY: animated}]}]}
           />
         </View>
-        <Text style={styles.subjSubTitle}>{t('subjects.subTitle')}</Text>
+        <Text style={styles.subjSubTitle}>{t('categories.subTitle')}</Text>
       </View>
 
       <View>
         <FlatList
           data={subjectData}
-          style={{paddingHorizontal: 20, marginTop: -60, marginBottom: 80}}
+          style={{margin: 10, marginTop: -60, marginBottom: 60}}
           contentContainerStyle={{alignItems: 'center'}}
           showsVerticalScrollIndicator={false}
           numColumns={2}
@@ -158,19 +174,21 @@ const SubjectMain = props => {
 const styles = StyleSheet.create({
   root: {flex: 1, position: 'relative'},
   subjectItemBtn: {
-    backgroundColor: colors.darkGreen,
+    backgroundColor: colors.white,
     margin: 10,
     width: width / 2.2,
-    height: height / 3.5,
+    height: height / 3,
     borderRadius: 10,
     // padding: 15,
+    alignItems:'center',
     shadow: '#9e9808',
     elevation: 5,
   },
   subjectItemImgStyle: {
-    width: width / 2.2,
-    height: height / 5,
+    width: width ,
+    height: height / 8,
     borderRadius: 10,
+    alignItems:'center'
   },
   header: {
     width: '100%',
@@ -199,8 +217,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 30,
   },
-  subjName: {color: colors.white, fontSize: 25, alignSelf: 'center'},
-  subjSubName: {color: colors.white, alignSelf: 'center', padding: 5},
+  subjName: {color: colors.primaryColor1, fontSize: 25, alignSelf: 'center'},
+  subjSubName: {color: colors.primaryColor1, alignSelf: 'center', padding: 5},
   subjSubTitle: {color: colors.white, fontSize: 18, paddingTop: 20},
 });
 

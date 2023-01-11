@@ -74,6 +74,7 @@ const GradesMain = props => {
             subjectId: subjectId,
             gradesId: gradesId,
             titleId: titles.item._id,
+            titleName: titles?.item?.battleNumber
           });
         }}
         style={styles.subjectItemBtn}>

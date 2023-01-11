@@ -109,24 +109,58 @@ const SubjectMain = props => {
         // console.log('battlenumConfig', props.battlenumConfig.data.result);
         // console.log('userBattleMarks', userBattleMarks);
         setBattleNumData(props.battlenumConfig.data.result);
-        let arrayObj = {
-          battleName: props.battlenumConfig.data.result[0].battleName,
-          battleNumber: props.battlenumConfig.data.result[0].battleNumber,
-          gradesId: props.battlenumConfig.data.result[0].gradesId,
-          isShowStudents:
-            props.battlenumConfig.data.result[0].isShowStudents,
-          isShowTeachers:
-            props.battlenumConfig.data.result[0].isShowTeachers,
-          subjectId: props.battlenumConfig.data.result[0].subjectId,
-          teachersId: props.battlenumConfig.data.result[0].teachersId,
-          _id: props.battlenumConfig.data.result[0]._id,
-          isLocked: false,
-        };
-        setCommonArray(commonArray => [...commonArray, arrayObj]);
+        // let arrayObj = {
+        //   battleName: props.battlenumConfig.data.result[0].battleName,
+        //   battleNumber: props.battlenumConfig.data.result[0].battleNumber,
+        //   gradesId: props.battlenumConfig.data.result[0].gradesId,
+        //   isShowStudents:
+        //     props.battlenumConfig.data.result[0].isShowStudents,
+        //   isShowTeachers:
+        //     props.battlenumConfig.data.result[0].isShowTeachers,
+        //   subjectId: props.battlenumConfig.data.result[0].subjectId,
+        //   teachersId: props.battlenumConfig.data.result[0].teachersId,
+        //   _id: props.battlenumConfig.data.result[0]._id,
+        //   isLocked: false,
+        // };
+        // setCommonArray(commonArray => [...commonArray, arrayObj]);
 
 
+        // props.battlenumConfig.data.result.forEach((item)=>{
+        //    if(userBattleMarks.length == 0){
+        //       let arrayObj = {
+        //         battleName: item.battleName,
+        //         battleNumber: item.battleNumber,
+        //         gradesId: item.gradesId,
+        //         isShowStudents: item.isShowStudents,
+        //         isShowTeachers: item.isShowTeachers,
+        //         subjectId: item.subjectId,
+        //         teachersId: item.teachersId,
+        //         _id: item._id,
+        //         isLocked: true,
+        //       };
+        //       setCommonArray(commonArray => [...commonArray, arrayObj]);
+        //    } else {
+        //      userBattleMarks.forEach((item2)=> {
+        //         if (item._id === item2.battleId) {
+        //           console.log('item2', item2);
+        //           let arrayObj = {
+        //             battleName: item.battleName,
+        //             battleNumber: item.battleNumber,
+        //             gradesId: item.gradesId,
+        //             isShowStudents: item.isShowStudents,
+        //             isShowTeachers: item.isShowTeachers,
+        //             subjectId: item.subjectId,
+        //             teachersId: item.teachersId,
+        //             _id: item._id,
+        //             isLocked: true,
+        //           };
+        //           setCommonArray(commonArray => [...commonArray, arrayObj]);
+        //         }
+        //      });
+        //    }
+        // });
         
-        for (let i = 1; i < props.battlenumConfig.data.result.length; i++) {
+        for (let i = 0; i < props.battlenumConfig.data.result.length; i++) {
 
           console.log('userBattleMarks1', userBattleMarks);
           if (userBattleMarks.length == 0) {
@@ -152,7 +186,27 @@ const SubjectMain = props => {
                   props.battlenumConfig.data.result[i]._id ===
                   userBattleMarks[j].battleId
                 ) {
-                  let arrayObj = {
+
+                  if(props.battlenumConfig.data.result[i].battleNumber==1){
+                    let arrayObj = {
+                      battleName: props.battlenumConfig.data.result[i].battleName,
+                      battleNumber:
+                        props.battlenumConfig.data.result[i].battleNumber,
+                      gradesId: props.battlenumConfig.data.result[i].gradesId,
+                      isShowStudents:
+                        props.battlenumConfig.data.result[i].isShowStudents,
+                      isShowTeachers:
+                        props.battlenumConfig.data.result[i].isShowTeachers,
+                      subjectId: props.battlenumConfig.data.result[i].subjectId,
+                      teachersId: props.battlenumConfig.data.result[i].teachersId,
+                      _id: props.battlenumConfig.data.result[i]._id,
+                      isLocked: false,
+                    };
+                     setCommonArray(commonArray => [...commonArray, arrayObj]);
+                  }
+                 
+
+                  let arrayObj1 = {
                     battleName: props.battlenumConfig.data.result[i].battleName,
                     battleNumber:
                       props.battlenumConfig.data.result[i].battleNumber,
@@ -166,23 +220,63 @@ const SubjectMain = props => {
                     _id: props.battlenumConfig.data.result[i]._id,
                     isLocked: false,
                   };
-                  setCommonArray(commonArray => [...commonArray, arrayObj]);
-                } else {
+                  setCommonArray(commonArray => [...commonArray, arrayObj1]);
+
                   let arrayObj = {
-                    battleName: props.battlenumConfig.data.result[i].battleName,
+                    battleName: props.battlenumConfig.data.result[i+1].battleName,
                     battleNumber:
-                      props.battlenumConfig.data.result[i].battleNumber,
-                    gradesId: props.battlenumConfig.data.result[i].gradesId,
+                      props.battlenumConfig.data.result[i+1].battleNumber,
+                    gradesId: props.battlenumConfig.data.result[i+1].gradesId,
                     isShowStudents:
-                      props.battlenumConfig.data.result[i].isShowStudents,
+                      props.battlenumConfig.data.result[i+1].isShowStudents,
                     isShowTeachers:
-                      props.battlenumConfig.data.result[i].isShowTeachers,
-                    subjectId: props.battlenumConfig.data.result[i].subjectId,
-                    teachersId: props.battlenumConfig.data.result[i].teachersId,
-                    _id: props.battlenumConfig.data.result[i]._id,
-                    isLocked: true,
+                      props.battlenumConfig.data.result[i+1].isShowTeachers,
+                    subjectId: props.battlenumConfig.data.result[i+1].subjectId,
+                    teachersId: props.battlenumConfig.data.result[i+1].teachersId,
+                    _id: props.battlenumConfig.data.result[i+1]._id,
+                    isLocked: false,
                   };
                   setCommonArray(commonArray => [...commonArray, arrayObj]);
+                  break;
+                } else {
+                  if(props.battlenumConfig.data.result[i].battleNumber==1){
+                    let arrayObj = {
+                      battleName: props.battlenumConfig.data.result[i].battleName,
+                      battleNumber:
+                        props.battlenumConfig.data.result[i].battleNumber,
+                      gradesId: props.battlenumConfig.data.result[i].gradesId,
+                      isShowStudents:
+                        props.battlenumConfig.data.result[i].isShowStudents,
+                      isShowTeachers:
+                        props.battlenumConfig.data.result[i].isShowTeachers,
+                      subjectId: props.battlenumConfig.data.result[i].subjectId,
+                      teachersId: props.battlenumConfig.data.result[i].teachersId,
+                      _id: props.battlenumConfig.data.result[i]._id,
+                      isLocked: false,
+                    };
+                     setCommonArray(commonArray => [...commonArray, arrayObj]);
+                  }else{
+                    console.log("battlenumConfig",props.battlenumConfig.data.result)
+                    if(props.battlenumConfig.data.result[i+1]!==undefined){
+                      let arrayObj = {
+                        battleName: props.battlenumConfig.data.result[i+1].battleName,
+                        battleNumber:
+                          props.battlenumConfig.data.result[i+1].battleNumber,
+                        gradesId: props.battlenumConfig.data.result[i+1].gradesId,
+                        isShowStudents:
+                          props.battlenumConfig.data.result[i+1].isShowStudents,
+                        isShowTeachers:
+                          props.battlenumConfig.data.result[i+1].isShowTeachers,
+                        subjectId: props.battlenumConfig.data.result[i+1].subjectId,
+                        teachersId: props.battlenumConfig.data.result[i+1].teachersId,
+                        _id: props.battlenumConfig.data.result[i+1]._id,
+                        isLocked: true,
+                      };
+                       setCommonArray(commonArray => [...commonArray, arrayObj]);
+                    }
+                  
+                  }
+                
                 }
               }
             }
@@ -207,6 +301,7 @@ const SubjectMain = props => {
                 gradesId: gradesId,
                 teacherId: categories.item.teachersId,
                 catagoryName: 'battle',
+                titleName: categories.item?.battleName
               })
             : null;
 
@@ -220,13 +315,9 @@ const SubjectMain = props => {
             ? styles.subjectItemBtn
             : styles.subjectItemBtnDisable,
         ]}>
-        {/* <Image
-          style={styles.subjectItemImgStyle}
-          source={{
-            uri: categories.item.image,
-          }}
-        /> */}
+       
         <Text style={styles.subjName}>{categories.item.battleNumber}</Text>
+       
       </TouchableOpacity>
     );
   };
@@ -304,8 +395,8 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   subjectItemImgStyle: {
-    width: width / 2.2,
-    height: height / 5,
+    width: 20,
+    height: 20,
     borderRadius: 10,
   },
   header: {

@@ -58,7 +58,7 @@ const Profile = props => {
   const initialLanguageList = [
     {id: 'si', value: 'සිංහල', name: 'Sinhala'},
     // {id: 'ta', value: 'தமிழ்', name: 'Tamil'},
-    {id: 'en', value: 'English', name: 'English'},
+    // {id: 'en', value: 'English', name: 'English'},
     // {id: 'ch', value: '中文', name: 'Chinese'},
     // {id: 'hi', value: 'हिन्दी', name: 'Hindi'},
   ];
@@ -343,17 +343,17 @@ const Profile = props => {
           </View>
 
           <View style={styles.changeLanStyle}>
-            <View style={{flex: 3, paddingLeft: 40}}>
+            {/* <View style={{flex: 3, paddingLeft: 40}}>
               <Text style={{color: 'black'}}>Change language</Text>
-            </View>
+            </View> */}
             <View style={{flex: 2, paddingRight: 40}}>
-              <Dropdown
+              {/* <Dropdown
                 rippleCentered
                 label="Select Language"
                 data={initialLanguageList}
                 value={language}
                 onChangeText={value => clickChangeLanguage(value)}
-              />
+              /> */}
             </View>
           </View>
 

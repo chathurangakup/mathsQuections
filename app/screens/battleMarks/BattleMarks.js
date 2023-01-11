@@ -50,13 +50,12 @@ const SubjectMain = props => {
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedGradeId, setSelectedGradeId] = useState('');
   const [userInfo, setUserInfo] = useState(null);
-  const [userMarksSum, setUserMarksSum] = useState();
+  const [userMarksSum, setUserMarksSum] = useState(0);
   const [allUserMarksSum, setAllUserMarksSum] = useState(null);
   const [releventUserSumOfmarks, setReleventUserSumOfmarks] = useState([]);
 
   useEffect(() => {
     setGradesArray([]);
-    console.log('mkmk', props.gradesConfig);
     if (props.gradesConfig !== undefined) {
       for (let i = 0; i < props.gradesConfig.data.grades.length; i++) {
         let obj = {
@@ -66,6 +65,7 @@ const SubjectMain = props => {
         if (i == 0) {
           setSelectedGrade(props.gradesConfig.data.grades[0].grade);
           setSelectedGradeId(props.gradesConfig.data.grades[0]._id);
+          getOtherUsersMarks(props.gradesConfig.data.grades[0]._id)
         }
 
         setGradesArray(gradesArray => [...gradesArray, obj]);
@@ -85,7 +85,7 @@ const SubjectMain = props => {
     const userBattleMarksObj = {
       subjectId: '62245b0704bfaee17214ac08',
       gradesId: '61f6493910c3e78e03c6df4e',
-      userId: '61e826fcf719c471f396846b',
+      userId: userId,
     };
 
     props.getReleventUserBattleMarks(userBattleMarksObj);
@@ -93,13 +93,12 @@ const SubjectMain = props => {
 
   useEffect(() => {
     callUserData();
-    getOtherUsersMarks()
+   // getOtherUsersMarks()
   }, []);
 
   useEffect(() => {
     if (props.userinfo !== undefined) {
       if (props.userinfo.data !== undefined) {
-        console.log('props.userinfo.userData', props.userinfo);
         setUserInfo(props.userinfo.data.userData);
       }
     }
@@ -108,19 +107,23 @@ const SubjectMain = props => {
   function battleMarksCalUser(item) {
     usermarks += item.battleMarks;
     setUserMarksSum(usermarks);
-    console.log(usermarks);
+    console.log("usermarks", usermarks);
   }
 
   useEffect(() => {
     if (props.userBattlenInfoConfig != undefined) {
-      props.userBattlenInfoConfig.data.result.forEach(battleMarksCalUser);
+      if(props.userBattlenInfoConfig.data.result.length == 0){
+      }else{
+        props.userBattlenInfoConfig.data.result.forEach(battleMarksCalUser);
+      }
+     
     }
     console.log("userBattlenInfoConfig",props.userBattlenInfoConfig)
   }, [props.userBattlenInfoConfig]);
 
-  const clickChangeGrade = grade => {
-
-    console.log(gradesArray)
+  const clickChangeGrade = async(grade) => {
+    const userId = await getUserId();
+    console.log("gradesArray", gradesArray)
     gradesArray.forEach((item)=>{
        if(item.value==grade){
          setSelectedGrade(grade);
@@ -128,26 +131,24 @@ const SubjectMain = props => {
         setUserMarksSum(0)
         const userBattleMarksObj = {
           subjectId: '62245b0704bfaee17214ac08',
-          gradesId: item._id,
-          userId: '61e826fcf719c471f396846b',
+          gradesId: item.id,
+          userId: userId,
         };
+        getOtherUsersMarks(item.id)
         props.getReleventUserBattleMarks(userBattleMarksObj);
       }
     });
-   
   };
 
 
   //get other users marks
-  const getOtherUsersMarks=()=>{
-     
+  const getOtherUsersMarks=(GradeId)=>{
+     console.log("selectedGradeId", selectedGradeId)
       const userMarksObj = {
         subjectId: '62245b0704bfaee17214ac08',
-        gradesId: selectedGradeId,
+        gradesId: GradeId,
       };
-    
-      props.getAllStudentsMarksInfo(userMarksObj); 
-      
+      props.getAllStudentsMarksInfo(userMarksObj);  
   }
   
 
@@ -161,7 +162,6 @@ const SubjectMain = props => {
           //  console.log("allStudentsmarksInfoConfig",allUserMarksSum);
            let sumofUsermarks = 0
            allUserMarksSum.forEach((items2)=>{
-           
               if(items.userDetails._id==items2.userId){
                 sumofUsermarks+= items2.battleMarks
               }
@@ -171,7 +171,6 @@ const SubjectMain = props => {
               image: items.userDetails.image,
               sumofUsermarks: sumofUsermarks
              }
-             console.log("allStudentsmarksInfoConfig1",obj);
             setReleventUserSumOfmarks(releventUserSumOfmarks=>[...releventUserSumOfmarks, obj])
  
        });
@@ -179,50 +178,50 @@ const SubjectMain = props => {
     // console.log("allusers",   props.allStudentsInfoConfig.data.users)
   
     console.log("releventUserSumOfmarks", releventUserSumOfmarks)
+    console.log("allStudentsInfoConfig",props.allStudentsInfoConfig)
    },[props.allStudentsInfoConfig])
 
   
   useEffect(()=>{
- 
-   if(props.allStudentsMarksInfoConfig!=undefined){
     console.log("allstu",props.allStudentsMarksInfoConfig)
-    if(props.allStudentsMarksInfoConfig.data.result!=undefined){
+   if(props.allStudentsMarksInfoConfig!=undefined){
+    console.log("allstu",props.allStudentsMarksInfoConfig.data.result)
+    if(props.allStudentsMarksInfoConfig.data.result!=undefined || props.allStudentsMarksInfoConfig.data.result.length !== 0){
         setAllUserMarksSum(props.allStudentsMarksInfoConfig.data.result)
     }
-    
-    props.getAllStudentsInfo();
-  
+     props.getAllStudentsInfo();
    }
-   
+   console.log("allStudentsMarksInfoConfig",props.allStudentsMarksInfoConfig)
    },[props.allStudentsMarksInfoConfig])
 
 
    const SumOfTheMarks = ({users}) => {
-    console.log("users", users)
     return (
       <View
       style={{
         height: 70,
-        backgroundColor: '#B00020',
+        backgroundColor: colors.white,
         flexDirection: 'row',
         justifyContent: 'space-between',
         padding: 10,
         borderRadius: 20,
         margin:10,
         width: width/1.2,
+        borderWidth: 1, 
+        borderColor: colors.primaryColor1
       }}>
       <Image
         style={styles.image}
         source={
   
-          userInfo == null ? Images.ProfilePic : {uri: users.item.image}
+          users?.item?.image == ""  ||   users?.item?.image ==null ? Images.ProfilePic : {uri: users?.item?.image}
         }
       />
       <View style={{paddingTop: 10}}>
-        {userInfo != null ? <Text style={{color: 'white', fontWeight:'bold'}}>{users.item.userName}</Text> : null}
+        {userInfo != null ? <Text style={{color: colors.blackColor, fontWeight:'bold'}}>{users.item.userName}</Text> : null}
       </View>
       <View style={{paddingTop: 10, paddingRight: 15}}>
-         <Text style={{color: 'white',fontWeight:'bold'}}>{users.item.sumofUsermarks}</Text>
+         <Text style={{color: colors.blackColor,fontWeight:'bold'}}>{users.item.sumofUsermarks}</Text>
       </View>
     </View>
 
@@ -237,7 +236,7 @@ const SubjectMain = props => {
         isShowBack={false}
         title={t('battles.title')}
         profilePicImage={
-          userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
+          userInfo ? (userInfo?.image == '' ? null : userInfo?.image) : null
         }
       />
       <View style={styles.header}>
@@ -265,24 +264,26 @@ const SubjectMain = props => {
         <View
           style={{
             height: 70,
-            backgroundColor: '#B00020',
+            backgroundColor: colors.white,
             flexDirection: 'row',
             justifyContent: 'space-between',
             padding: 10,
             borderRadius: 20,
+            borderWidth: 1,
+            borderColor: colors.primaryColor1
           }}>
           <Image
             style={styles.image}
             source={
       
-              userInfo == null ? Images.ProfilePic : {uri: userInfo.image}
+              userInfo?.image == null ? Images.ProfilePic : {uri: userInfo?.image}
             }
           />
           <View style={{paddingTop: 10}}>
-            {userInfo != null ? <Text style={{color: 'white', fontWeight:'bold'}}>{userInfo.userName}</Text> : null}
+            {userInfo != null ? <Text style={{color: colors.blackColor, fontWeight:'bold'}}>{userInfo.userName}</Text> : null}
           </View>
           <View style={{paddingTop: 10, paddingRight: 15}}>
-             <Text style={{color: 'white',fontWeight:'bold'}}>{userMarksSum}</Text>
+             <Text style={{color: colors.blackColor,fontWeight:'bold'}}>{userMarksSum}</Text>
           </View>
         </View>
       </View>
