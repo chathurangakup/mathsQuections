@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "738784027490-s0t8fqbqa414cllvujbscvnf6opc411s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chathu.apeiscolelive",
+            "certificate_hash": "06e04d46eafbfdc79ed2ec6ccfc5bcb84c4101a1"
+          }
+        },
+        {
           "client_id": "738784027490-apsfmqig2ib85df66pusbh0rb9efl6f7.apps.googleusercontent.com",
           "client_type": 3
         }
