@@ -1,9 +1,8 @@
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   Text,
   View,
   SafeAreaView,
-  StyleSheet,
   TouchableOpacity,
   Image,
   Animated,
@@ -11,119 +10,338 @@ import {
   Dimensions,
   ScrollView,
   Modal,
-  Alert,
   Platform,
   TextInput,
 } from 'react-native';
 import {connect} from 'react-redux';
 import {getTranslate} from 'react-localize-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icons from 'react-native-vector-icons/Ionicons';
+import Icons from 'react-native-vector-icons/AntDesign';
 import {Modalize} from 'react-native-modalize';
 import storage from '@react-native-firebase/storage';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+// import {
+//   AdMobBanner,
+//   AdMobInterstitial,
+//   PublisherBanner,
+//   AdMobRewarded,
+// } from 'react-native-admob';
+var Sound = require('react-native-sound');
 
-import {fontSizes, materialTextFieldStyle, colors} from '../../config/styles';
+import {colors} from '../../config/styles';
 import {Button} from '../../components/Button';
 import Images from '../../config/Images';
-import TextField from '../../components/TextField';
+import {AppBar} from '../../components/AppBar';
+import {showErrorSlideUpPanel, showAdverticeModal} from '../../lib/Utils';
+import {LOGOUT_IMAGE} from '../../config/settings';
+import {UPDATE_LOADING_SPINNER_STATE} from '../../actyonTypes/Common';
 
 import {quectionsSet} from '../../config/DefaultJson';
+import {
+  GET_QUECTIONS,
+  GET_BATTLE_QUECTIONS,
+  GET_USER_REVIEW,
+  ADD_REVIEW,
+  DELETE_REVIEW,
+  SHOW_ADVERTICE,
+  ADD_BATTLE_MARKS,
+} from './QuectionsMainActionTypes';
+import {styles} from './Styles';
 
 const {width, height} = Dimensions.get('window');
 
-const Login = props => {
+let intervalId;
+Sound.setCategory('Playback');
+const correctDing = new Sound(require("../../assests/sounds/correct.mp3"), Sound.MAIN_BUNDLE, error => console.log(error + "something went wrong"));
+const wrongDing = new Sound(require("../../assests/sounds/wrong.mp3"), Sound.MAIN_BUNDLE, error => console.log(error + "something went wrong"));
+
+
+const QuectionMain = props => {
   const t = props.translate;
+  const {titleId, subjectId, gradesId, teacherId, catagoryName, titleName} = props.route.params;
   const allQuections = quectionsSet;
   const [currentQuectionIndex, setCurrentQuectionIndex] = useState(0);
   const [currentOptionSelected, setCurrentOptionSelected] = useState(null);
   const [correctOption, setCorrectOption] = useState(null);
-  const [isOptionsDisable, setIsOptionsDisable] = useState(false);
+  // const [isOptionsDisable, setIsOptionsDisable] = useState(false);
   const [score, setScore] = useState(0);
   const [showNextButton, setShowNextButton] = useState(false);
   const [isVisibleModel, setIsVisibleModel] = useState(false);
-  // const [imagePath, setImagePath] = useState('');
   const [imageFileName, setImageFileName] = useState('');
   const [imagePath, setImagePath] = useState(Images.NoDataImage);
+  const [quections, setQuections] = useState(allQuections);
+  const [reviews, setReviews] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
+  const [comment, setComment] = useState('');
+  const [isShowMarksModel, setIsShowMarksModel] = useState(false);
+  const [commentImageUrl, setCommentImageUrl] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [timeCount, setTimeMinuteCount] = useState('00:00');
+  let today = new Date();
+  let date =
+    today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  let time =
+    today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds();
+
+
 
   const validateAns = selectOption => {
-    let correct_option = allQuections[currentQuectionIndex]['correctAns'];
-    setCurrentOptionSelected(selectOption);
-    setCorrectOption(correct_option);
-    setIsOptionsDisable(true);
-    if (selectOption == correct_option) {
-      setScore(score + 1);
+    if(showNextButton==false){
+      let correct_option = quections[currentQuectionIndex].correctAns;
+      setCurrentOptionSelected(selectOption);
+      setCorrectOption(correct_option);
+      // setIsOptionsDisable(true);
+      if (selectOption == correct_option) {
+        setScore(score + 1);
+        correctDing.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }else{
+        wrongDing.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }
+  
+      clearInterval(intervalId);
+      setShowNextButton(true);
     }
-    setShowNextButton(true);
+  
   };
 
   const handleNext = () => {
-    if (currentQuectionIndex == allQuections.length) {
+    if (currentQuectionIndex + 1 == quections.length) {
+      setIsShowMarksModel(true);
     } else {
       setCurrentQuectionIndex(currentQuectionIndex + 1);
       setCurrentOptionSelected(null);
       setCorrectOption(null);
-      setIsOptionsDisable(false);
+      // setIsOptionsDisable(false);
       setShowNextButton(false);
     }
+    
+    if(catagoryName=='battle'){
+      if(timeLeft==0){
+        setTimeLeft(1);
+      }else{
+        setTimeLeft(0);
+      }
+    
+      setTimeMinuteCount('00:00')
+    }
     Animated.timing(progress, {
-      toValue: currentQuectionIndex + 1,
+      toValue: catagoryName=='battle'? 0: currentQuectionIndex + 1,
       duration: 1000,
       useNativeDriver: false,
     }).start();
   };
 
+  useEffect(() => {
+    console.log('teachersQ', titleId);
+    let params = {
+      subjectId: subjectId,
+      gradesId: gradesId,
+      titleId: titleId,
+      teacherId: teacherId,
+    };
+    if(catagoryName == 'battle'){
+      props.getBattleQuections(params);
+    }else{
+      props.getQuections(params);
+    }
+  
+    //console.log("subjectsConfig".props.subjectsConfig);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    console.log('props.showAdverticeConfig', props.showAdverticeConfig);
+    if (props.showAdverticeConfig !== undefined) {
+      showAdverticeModal(
+        props.showAdverticeConfig.data.result[0].image,
+        props.showAdverticeConfig.data.result[0].image,
+        () => {},
+        'OK',
+      );
+    }
+  }, [props.showAdverticeConfig]);
+
+  useEffect(() => {
+    if (commentImageUrl !== '') {
+      let params = {
+        subjectId: subjectId,
+        gradesId: gradesId,
+        titleId: titleId,
+        userId: userInfo ? userInfo._id : null,
+        quectionId: quections[currentQuectionIndex]?._id,
+        review: comment,
+        role: userInfo ? userInfo.role : null,
+        image: commentImageUrl,
+        date: date,
+        time: time,
+        isPinned: false,
+      };
+      console.log(userInfo);
+      console.log(params);
+      props.addReview(params);
+      setIsVisibleModel(false);
+      setCommentImageUrl('');
+      console.log('add comment with img', commentImageUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [commentImageUrl !== '']);
+
+  useEffect(() => {
+    console.log('quections', props.config);
+    if (props.config != undefined) {
+      console.log('quections', props.config);
+      setQuections(props.config.data.result);
+    }
+  }, [props.config]);
+
+  useEffect(() => {
+    console.log('reviewInfoConfig', props.reviewInfoConfig);
+    if (props.reviewInfoConfig != undefined) {
+      console.log('reviewInfoConfig', props.reviewInfoConfig);
+      setReviews(props.reviewInfoConfig.data.result);
+    }
+  }, [props.reviewInfoConfig]);
+
+
+  const convertSeconds=(s)=> {
+    var min = Math.floor (s / 60);
+    var sec = s % 60;
+    return '0'+min + ':' + ("00" + sec).substr(-2);;
+
+  }
+
+  useEffect(() => {
+    console.log('addReviewConfig', props.addReviewConfig);
+    if (props.addReviewConfig != undefined) {
+      console.log('addReviewConfig', props.addReviewConfig);
+      if (props.addReviewConfig.data.result == 'success') {
+        let params = {
+          quectionid: quections[currentQuectionIndex]?._id,
+        };
+        props.getReviews(params);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.addReviewConfig]);
+
+
+
+  {catagoryName == 'battle'
+    ? useEffect(() => {
+        intervalId = setInterval(() => {
+          setTimeLeft(timeLeft => timeLeft + 1);
+          setTimeMinuteCount(convertSeconds(timeLeft));
+          Animated.timing(progress, {
+            toValue: timeLeft,
+            duration: 1000,
+            useNativeDriver: false,
+          }).start();
+          console.log('timeLeft', timeLeft);
+        }, 2000);
+
+        if (timeLeft === 120 + 1) {
+          clearInterval(intervalId);
+          wrongDing.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+          handleNext();
+        }
+        return () => clearInterval(intervalId);
+      }, [timeLeft])
+    : null;
+}
+
+
+
+
+
+
+
   const renderOptions = () => {
     return (
       <ScrollView>
-        {allQuections[currentQuectionIndex]?.textOrImageAns == 'text'
-          ? allQuections[currentQuectionIndex].answers.map(option => (
-              <TouchableOpacity
-                onPress={() => validateAns(option)}
-                key={option}
-                style={[
-                  styles.ansButton,
-                  {
-                    borderColor:
-                      option == correctOption
-                        ? colors.green
-                        : option == currentOptionSelected
-                        ? colors.red
-                        : colors.secondaryColor1,
-                    backgroundColor:
-                      option == correctOption
-                        ? colors.green1
-                        : option == currentOptionSelected
-                        ? colors.red + '60'
-                        : colors.secondaryColor1,
-                  },
-                ]}>
-                <View style={{flex: 5}}>
-                  <Text style={{fontSize: 20, color: colors.white}}>
-                    {option}
-                  </Text>
+        {quections[currentQuectionIndex]?.answerType == 'Text'
+          ? quections[currentQuectionIndex].ansList.map((option, index) => (
+              <View style={{flexDirection: 'row'}}>
+                <View style={{flex: 0.2, paddingTop: 25}}>
+                  <Text style={{color: 'black'}}>{index + 1}. </Text>
                 </View>
+                <View style={{flex: 5}}>
+                  <TouchableOpacity
+                    onPress={() => validateAns(option)}
+                    key={option}
+                    style={[
+                      styles.ansButton,
+                      {
+                        borderColor:
+                          option == correctOption
+                            ? colors.green
+                            : option == currentOptionSelected
+                            ? colors.red
+                            : colors.primaryColor1,
+                        backgroundColor:
+                          option == correctOption
+                            ? colors.green1
+                            : option == currentOptionSelected
+                            ? colors.red + '60'
+                            : colors.white,
+                      },
+                    ]}>
+                    <View style={styles.renderOptMain}>
+                      <Text
+                        style={[
+                          styles.renderOptMainFont,
+                          {
+                            color:
+                              option == correctOption
+                                ? colors.white
+                                : option == currentOptionSelected
+                                ? colors.white
+                                : colors.blackColor,
+                          },
+                        ]}>
+                        {option}
+                      </Text>
+                    </View>
 
-                <View style={{flex: 0.5}}>
-                  {option == correctOption ? (
-                    <View style={styles.correctAnsStyle}>
-                      <MaterialCommunityIcons
-                        name="check"
-                        style={styles.iconStyle}
-                      />
+                    <View style={{flex: 0.5}}>
+                      {option == correctOption ? (
+                        <View style={styles.correctAnsStyle}>
+                          <MaterialCommunityIcons
+                            name="check"
+                            style={styles.iconStyle}
+                          />
+                        </View>
+                      ) : option == currentOptionSelected ? (
+                        <View style={styles.wrongAnsStyle}>
+                          <MaterialCommunityIcons
+                            name="close"
+                            style={styles.iconStyle}
+                          />
+                        </View>
+                      ) : null}
                     </View>
-                  ) : option == currentOptionSelected ? (
-                    <View style={styles.wrongAnsStyle}>
-                      <MaterialCommunityIcons
-                        name="close"
-                        style={styles.iconStyle}
-                      />
-                    </View>
-                  ) : null}
+                  </TouchableOpacity>
                 </View>
-              </TouchableOpacity>
+              </View>
             ))
-          : allQuections[currentQuectionIndex].answers.map(option => (
+          : quections[currentQuectionIndex].ansList.map((option, index) => (
               <TouchableOpacity
                 onPress={() => validateAns(option)}
                 key={option}
@@ -145,9 +363,19 @@ const Login = props => {
                   },
                 ]}>
                 <View style={{flex: 5}}>
-                  <Image
-                    style={{width: width / 3, height: height / 5}}
-                    source={{uri: option}}></Image>
+                  {quections[currentQuectionIndex].imageAnsList != undefined
+                    ? quections[currentQuectionIndex].imageAnsList.map(
+                        (opt, index1) =>
+                          index == index1 ? (
+                            <Image
+                              style={styles.quectionOpt}
+                              source={{
+                                uri: opt,
+                              }}
+                            />
+                          ) : null,
+                      )
+                    : null}
                 </View>
 
                 <View style={{flex: 0.5}}>
@@ -173,20 +401,19 @@ const Login = props => {
     );
   };
 
+
+
+
   const renderQuections = () => {
     return (
-      <View>
-        <View style={{flexDirection: 'row', alignItems: 'flex-end'}}>
-          <Text style={styles.quectionTextStyle}>{currentQuectionIndex} </Text>
-          <Text style={{color: colors.white, fontSize: 20, opacity: 0.6}}>
-            {' '}
-            / {allQuections.length}{' '}
-          </Text>
-        </View>
-        <Text style={{color: colors.white, fontSize: 20}}>
-          {allQuections[currentQuectionIndex]?.quection == ''
+      <View style={{paddingBottom: 30}}>
+        <Text style={{color: colors.blackColor, fontSize: 15}}>
+          {quections[currentQuectionIndex]?.quection == ''
             ? ''
-            : allQuections[currentQuectionIndex]?.quection}
+            : currentQuectionIndex +
+              1 +
+              '. ' +
+              quections[currentQuectionIndex]?.quection}
         </Text>
         <View>
           {/* {allQuections[currentQuectionIndex]?.image == '' ? '' :allQuections[currentQuectionIndex]?.quection} */}
@@ -197,17 +424,24 @@ const Login = props => {
                     <Image style={{width: 40, height: 30}} />
                   );
               }
-              
+
               return null;
             })()} */}
-          {allQuections[currentQuectionIndex].image == '' ? (
-            <View></View>
+          {quections[currentQuectionIndex].imageQuection == '' ? (
+            <View />
           ) : (
             <View style={{alignItems: 'center', padding: 10}}>
-              <Image
-                style={{width: width / 2, height: height / 5}}
-                source={{uri: allQuections[currentQuectionIndex].image}}
-              />
+              <TouchableOpacity
+                onPress={() =>
+                  props.navigation.navigate('pinchScreen', {
+                    imgUrl: quections[currentQuectionIndex].imageQuection,
+                  })
+                }>
+                <Image
+                  style={{width: width / 2, height: height / 5}}
+                  source={{uri: quections[currentQuectionIndex].imageQuection}}
+                />
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -218,47 +452,31 @@ const Login = props => {
   const renderNextButton = () => {
     if (showNextButton) {
       return (
-        <View>
-           <View>
-           <TouchableOpacity
-          style={{
-            marginTop: 20,
-            width: '100%',
-            backgroundColor: colors.secondaryColor2,
-            padding: 15,
-            borderRadius: 35,
-          }}
-          onPress={() => handleNext()}>
-          <Text
-            style={{fontSize: 20, color: colors.white, textAlign: 'center'}}>
-            NEXT
-          </Text>
-        </TouchableOpacity>
-           </View>
-           <View style={{flexDirection:'row'}}>
-             <View style={{flex:2}}>
-
-             </View>
-             <View style={{flex:1}}>
-             <TouchableOpacity
-          style={{
-            marginTop: 20,
-            width: '100%',
-            backgroundColor: colors.secondaryColor2,
-            padding: 15,
-            borderRadius: 35,
-          }}
-          onPress={() => onOpen()}>
-          <Text
-            style={{fontSize: 12, color: colors.white, textAlign: 'center'}}>
-            Review
-          </Text>
-        </TouchableOpacity>
-             </View>
-           </View>
+        <View style={[styles.nextBtnRoot, {flexDirection: catagoryName=='battle'? 'column': 'row'}]}>
+          <View styles={styles.nxtBtnMain}>
+            <TouchableOpacity
+              style={styles.nextBtnStyles}
+              onPress={() => handleNext()}>
+              <Text style={styles.nextBtnTextStyles}>NEXT</Text>
+            </TouchableOpacity>
+          </View>
+          {catagoryName == 'battle' ? null : (
+            <View styles={styles.reviewBtnMain}>
+              <TouchableOpacity
+                style={styles.reviewBtnStyles}
+                onPress={() =>
+                  onOpenReviewModel(quections[currentQuectionIndex]?._id)
+                }>
+                <Text style={styles.reviewBtnTextStyles}>
+                  {quections[currentQuectionIndex]?.quection == ''
+                    ? ''
+                    : quections[currentQuectionIndex]?.review_count}{' '}
+                  Review
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-      
-       
       );
     } else {
       return null;
@@ -267,63 +485,101 @@ const Login = props => {
 
   const [progress, setProgress] = useState(new Animated.Value(0));
   const progressAnim = progress.interpolate({
-    inputRange: [0, allQuections.length],
+    inputRange: [0, quections.length],
     outputRange: ['0%', '100%'],
+  });
+  const progressAnimTime = progress.interpolate({
+    inputRange: [0, 120],
+    outputRange: ['100%', '0%'],
   });
   const modalizeRef = useRef(null);
   const animated = useRef(new Animated.Value(0)).current;
 
-  const onOpen = () => {
+  const onOpenReviewModel = quectionId => {
+    setReviews([]);
+
+    let params = {
+      quectionid: quectionId,
+    };
+    console.log('params', params);
+    props.getReviews(params);
     modalizeRef.current?.open();
   };
 
   const renderProgressBar = () => {
     return (
-      <View
-        style={{
-          width: '100%',
-          height: 20,
-          borderRadius: 20,
-          backgroundColor: '#000020',
-        }}>
-        <Animated.View
-          style={[
-            styles.animatedbarStyle,
-            {width: progressAnim},
-          ]}></Animated.View>
+      <View>
+        <View
+          style={{flexDirection: 'row', alignItems: 'flex-end', padding: 5}}>
+          <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text>
+          <Text style={styles.inProgressTxtstyle}> / {quections.length} </Text>
+        </View>
+
+        <View style={styles.InprogressAnimated}>
+          <Animated.View
+            style={[styles.animatedbarStyle, {width: progressAnim}]}
+          />
+        </View>
       </View>
     );
   };
 
-  const renderFloatingComponent = () => {
+  const renderTimeProgressBar = () => {
     return (
-     
+      <View>
         <View
           style={{
-            flex: 1,
             flexDirection: 'row',
-            position: 'absolute',
-            bottom: 10,
-            right: 0,
-            width: 70,
-            height: 70,
-            alignSelf: 'flex-end',
-            justifyContent: 'space-between',
-            backgroundColor: colors.primaryColor1,
-            borderWidth: 0,
-            margin: 20,
-            borderRadius: 70,
-            alignItems:'center',
-            justifyContent:'center'
+            alignItems: 'flex-end',
+            padding: 5,
+            justifyContent: 'center',
           }}>
-             <TouchableOpacity onPress={() => setIsVisibleModel(true)}>
-                <MaterialCommunityIcons
-                        name="file-plus-outline"
-                        style={styles.floatIconStyle}
-                      />
-            </TouchableOpacity>
-          </View>
-     
+          {/* <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text> */}
+          <Text style={styles.inProgressTxtstyle}> {timeCount} : {convertSeconds(120)}</Text>
+        </View>
+
+        <View style={styles.InprogressAnimated}>
+          <Animated.View
+            style={[styles.animatedbarStyle, {width: progressAnimTime}]}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            padding: 5,
+            justifyContent: 'center',
+          }}>
+          <Text style={styles.quectionTextStyle}>
+            {currentQuectionIndex + 1}{' '}
+          </Text>
+          <Text style={styles.inProgressTxtstyle}> / {quections.length} </Text>
+        </View>
+      </View>
+    );
+  };
+
+  const visibleAddCommentModel = () => {
+    setIsVisibleModel(true);
+    setImagePath(Images.NoDataImage);
+    setImageFileName('');
+    setComment('');
+  };
+
+  const renderFloatingComponent = () => {
+    return (
+      <View style={styles.floatActionStyle}>
+        <TouchableOpacity onPress={() => visibleAddCommentModel()}>
+          <MaterialCommunityIcons
+            name="file-plus-outline"
+            style={styles.floatIconStyle}
+          />
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -361,6 +617,7 @@ const Login = props => {
     const url = await imageRef.getDownloadURL().catch(error => {
       throw error;
     });
+    setCommentImageUrl(url);
     return url;
   };
 
@@ -385,14 +642,48 @@ const Login = props => {
         setImagePath(path);
         setImageFileName(fileName);
         console.log(fileName);
+        global.store.dispatch({
+          type: UPDATE_LOADING_SPINNER_STATE,
+          payload: false,
+        });
         // getUrl(path, fileName);
       }
     });
   };
 
-  const getUrl = async (path, fileName) => {
-    const url = await uploadImage(path, fileName);
-    console.log(url);
+  const getUrlAndAddCommit = async (path, fileName) => {
+    console.log('comment' + comment);
+
+    if (comment == '') {
+      alert('please add comment');
+    } else {
+      setIsVisibleModel(false);
+      if (fileName !== '' && comment !== '') {
+        global.store.dispatch({
+          type: UPDATE_LOADING_SPINNER_STATE,
+          payload: true,
+        });
+        await uploadImage(path, fileName);
+      } else if (fileName === '' && comment !== '') {
+        let params = {
+          subjectId: subjectId,
+          gradesId: gradesId,
+          titleId: titleId,
+          userId: userInfo ? userInfo._id : null,
+          quectionId: quections[currentQuectionIndex]?._id,
+          review: comment,
+          role: userInfo ? userInfo.role : null,
+          image: '',
+          date: date,
+          time: time,
+          isPinned: false,
+        };
+        console.log(userInfo);
+        console.log(params);
+        props.addReview(params);
+        setIsVisibleModel(false);
+      }
+    }
   };
 
   /**
@@ -420,257 +711,470 @@ const Login = props => {
     });
   };
 
-  const getPlatformURI =(imagePath)=> {
+  const getPlatformURI = imagePath => {
     let imgSource = imagePath;
-    console.log("imagePath",imagePath)
+    console.log('imagePath', imagePath);
     if (isNaN(imagePath)) {
-        imgSource = { uri:imagePath };
-        if (Platform.OS == 'android') {
-            imgSource.uri =  imgSource.uri;
-        }
+      imgSource = {uri: imagePath};
+      if (Platform.OS == 'android') {
+        imgSource.uri = imgSource.uri;
+      }
     }
-    return imgSource
-}
+    return imgSource;
+  };
+
+  let imgSource;
+
+  useEffect(() => {
+    if (props.deleteReviewConfig != undefined) {
+      console.log('props.deleteReviewConfig', props.deleteReviewConfig);
+      let params = {
+        quectionid: quections[currentQuectionIndex]?._id,
+      };
+      props.getReviews(params);
+    }
+     imgSource = getPlatformURI(imagePath);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.deleteReviewConfig]);
+
+  const onPressDelete = reviewId => {
+    showErrorSlideUpPanel(
+      'Delete',
+      'Are you sure, you want to delete?',
+      true,
+      LOGOUT_IMAGE,
+      'CANCEL',
+      () => {},
+      'Delete',
+      () => props.deleteReview(reviewId),
+    );
+  };
 
   const renderModalizeModel = () => {
     return (
       <Modalize
         ref={modalizeRef}
         panGestureAnimatedValue={animated}
+        // scrollViewProps={{contentContainerStyle: {height: '120%'}}}
         FloatingComponent={renderFloatingComponent}>
-        <View >
-          <View style={{flexDirection:'row',paddingLeft:20}}>
-            <View style={{flex:1,}}>
-              <Image style={{color:'black', width:50,height:50}} source={Images.ProfilePic} />
+        <ScrollView style={{marginBottom: 30}}>
+          {reviews.length !== 0 ? (
+            <View>
+              <Text style={styles.ModalizeTextStyle}>Reviews</Text>
+              {reviews.map((options, index) => (
+                <View>
+                  <View style={styles.reviewRoot}>
+                    <View style={{flex: 1, paddingTop: 10}}>
+                      <Image
+                        style={styles.reviewImgStyles}
+                        source={
+                          options.userInfo[0].image === '' ||
+                          options.userInfo[0].image == null
+                            ? Images.ProfilePic
+                            : {uri: options.userInfo[0].image}
+                        }
+                      />
+                    </View>
+                    <View style={{flex: 4, paddingTop: 5}}>
+                      <View style={{flexDirection: 'row'}}>
+                        <Text style={{color: 'black', fontWeight: 'bold'}}>
+                          {options.userInfo[0].userName}
+                        </Text>
+                        <Text
+                          style={{
+                            color: 'black',
+                            paddingLeft: 5,
+                          }}>
+                          ({options.userInfo[0].role})
+                        </Text>
+                      </View>
+                      <Text style={{color: 'black', fontSize: 10}}>
+                        {' '}
+                        {options.date} {options.time}
+                      </Text>
+                    </View>
+
+                    <View style={{flex: 1, padding: 10}}>
+                      {userInfo._id == options.userId ? (
+                        <Icons
+                          name="delete"
+                          size={30}
+                          color={colors.blackColor}
+                          onPress={() => onPressDelete(options._id)}
+                        />
+                      ) : null}
+                    </View>
+                  </View>
+
+                  <View style={{padding: 5}}>
+                    <Text style={{color: 'black', paddingLeft: 25}}>
+                      {options.review}
+                    </Text>
+                    {options.image == '' ? null : (
+                      <View style={styles.ModalizeModelStyles}>
+                        <TouchableOpacity
+                          onPress={() =>
+                            props.navigation.navigate('pinchScreen', {
+                              imgUrl: options.image,
+                            })
+                          }>
+                          <Image
+                            style={styles.reviewImgStyle2}
+                            source={{
+                              uri: options.image,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              ))}
             </View>
-            <View style={{flex:4,padding:10}}>
-                <Text style={{color:'black'}}>Uditha Chathuranga</Text>
-                <Text style={{color:'black'}}>2022/12/10</Text>
+          ) : (
+            <View style={styles.noReviews}>
+              <Text
+                style={{
+                  color: 'black',
+                }}>
+                {' '}
+                No Reviews{' '}
+              </Text>
             </View>
-          </View>
-          <View>
-            <Text style={{color:'black',paddingLeft:25}}>Uditha Chathuranga</Text>
-            <View style={{padding:10,backgroundColor:colors.primaryColor2,margin:20,alignItems:'center'}}>
-              <TouchableOpacity onPress={()=>props.navigation.navigate('pinchScreen',{imgUrl:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f'})}>
-                 <Image style={{color:'black', width:width/3,height:height/6}} source={{uri:'https://firebasestorage.googleapis.com/v0/b/apescole-bb52b.appspot.com/o/kupchaturanga1%40gmail.com%2Frn_image_picker_lib_temp_2a246cd3-8329-4f21-9e31-d47b8ae45c92.jpg?alt=media&token=85ec057a-e75e-49b0-a3d5-7ce95d087b3f'}} />
-              </TouchableOpacity>
-              
-            </View>
-           
-          </View>
-        </View>
+          )}
+        </ScrollView>
       </Modalize>
     );
   };
 
+  const clickCancel = () => {
+    setIsVisibleModel(false);
+    setImagePath(Images.NoDataImage);
+    setImageFileName('');
+  };
+
+  const clickRetryBtn = () => {
+    // const params = {
+    //   titleId: titleId,
+    // };
+    // props.showAdvertice(params);
+    if(catagoryName == 'battle'){
+       const params = {
+         subjectId: subjectId,
+         gradesId: gradesId,
+         battleId: titleId,
+         userId: userInfo ? userInfo._id : null,
+         battleName: titleName,
+         battleNumber: parseInt(titleName),
+         battleMarks: score,
+       };
+       console.log(params)
+     props.addBattleMarks(params);
+      setIsShowMarksModel(false);
+      setCurrentQuectionIndex(0);
+      setScore(0);
+  
+      setCurrentOptionSelected(null);
+      setCorrectOption(null);
+      setShowNextButton(false);
+  
+      setProgress(new Animated.Value(0));
+      // AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+      // AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+      // AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }else{
+    setIsShowMarksModel(false);
+    setCurrentQuectionIndex(0);
+    setScore(0);
+
+    setCurrentOptionSelected(null);
+    setCorrectOption(null);
+    setShowNextButton(false);
+
+    setProgress(new Animated.Value(0));
+    // AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+    // AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+    // AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }
+
+   
+  };
+
+  useEffect(()=>{
+    if(props.addBattleMarksConfig!=undefined){
+        console.log("addBattleMarksConfig",props.addBattleMarksConfig) 
+        setIsShowMarksModel(false);
+        setCurrentQuectionIndex(0);
+        setScore(0);
+    
+        setCurrentOptionSelected(null);
+        setCorrectOption(null);
+        setShowNextButton(false);
+    
+        setProgress(new Animated.Value(0));
+        AdMobInterstitial.setAdUnitID('ca-app-pub-2295070264667994/5607241205');
+        AdMobInterstitial.setTestDevices([AdMobInterstitial.simulatorId]);
+        AdMobInterstitial.requestAd().then(() => AdMobInterstitial.showAd());
+    }
+  },[props.addBattleMarksConfig]);
+
+  const clickGotoNectBtn = () => {
+    setIsShowMarksModel(false);
+    setCurrentQuectionIndex(0);
+    setScore(0);
+
+    setCurrentOptionSelected(null);
+    setCorrectOption(null);
+    setShowNextButton(false);
+
+    setProgress(new Animated.Value(0));
+
+    props.navigation.navigate('titleMain');
+  };
+
   const renderaddCommentModel = () => {
-     let imgSource = getPlatformURI(imagePath);
-    return(
+   
+    return (
       <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isVisibleModel}
-      onRequestClose={() => {
-        setIsVisibleModel(false);
-      }}>
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <View>
-             <View style={{alignItems:'center'}}>
-              <View style={styles.textAreaContainer} >
-                <TextInput
-                  style={styles.textArea}
-                  underlineColorAndroid="transparent"
-                  placeholder="Type something"
-                  placeholderTextColor="grey"
-                  numberOfLines={10}
-                  multiline={true}
-                />
-              </View>
-                <View style={{flexDirection:'row'}}>
-                   <Image style={{color:'black', width:width/2,height:height/5,borderColor:'black',borderWidth:1}} source={imgSource} />
-                   <Text style={{color:'black',alignSelf:'center'}}> (Optional)</Text>
+        animationType="slide"
+        transparent={true}
+        visible={isVisibleModel}
+        onRequestClose={() => {
+          setIsVisibleModel(false);
+          setImagePath(Images.NoDataImage);
+          setImageFileName('');
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <View>
+              <View style={{alignItems: 'center'}}>
+                <View style={styles.textAreaContainer}>
+                  <TextInput
+                    style={styles.textArea}
+                    underlineColorAndroid="transparent"
+                    placeholder="Type something"
+                    placeholderTextColor="grey"
+                    numberOfLines={10}
+                    value={comment}
+                    onChangeText={text => setComment(text)}
+                    multiline={true}
+                  />
                 </View>
-              
-                
+                <View style={{flexDirection: 'row'}}>
+                  <Image
+                    style={styles.commentModelImgStyle}
+                    source={imgSource}
+                  />
+                  <Text style={{color: 'black', alignSelf: 'center'}}>
+                    {' '}
+                    (Optional)
+                  </Text>
+                </View>
               </View>
-            
 
-            <View style={styles.eightyWidthStyle}>
-              <TouchableOpacity
-                onPress={chooseCamera}
-                style={{height: 30, backgroundColor: '#000', margin: 10}}>
-                <Text>Choose Camera</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={chooseLib}
-                style={{height: 30, backgroundColor: '#000', margin: 10}}>
-                <Text>Choose Library</Text>
-              </TouchableOpacity>
+              <View style={styles.eightyWidthStyle}>
+                <TouchableOpacity
+                  onPress={chooseCamera}
+                  style={styles.camOrlibStyles}>
+                  <Text style={styles.camOrlibTextStyles}> Camera</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={chooseLib}
+                  style={styles.camOrlibStyles}>
+                  <Text style={styles.camOrlibTextStyles}>Library</Text>
+                </TouchableOpacity>
+              </View>
+              <Button
+                buttonStyle={{color: colors.primaryColor2}}
+                addText={'Add Comment'}
+                onPressBtn={() => getUrlAndAddCommit(imagePath, imageFileName)}
+              />
+
+              <View style={{alignItems: 'center'}}>
+                <Text style={{color: 'black'}}>Or</Text>
+                <TouchableOpacity onPress={() => clickCancel()}>
+                  <Text style={{color: 'black'}}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Button 
-               buttonStyle={{color: colors.primaryColor2}}
-               addText={"Add Comment"}
-             onPressBtn={()=>  getUrl(imagePath,imageFileName)}
-            />
-
-          <View style={{alignItems:'center'}}>
-            <Text style={{color:'black'}}>Or</Text>
-            <TouchableOpacity onPress={()=>  setIsVisibleModel(false)}>
-              <Text style={{color:'black'}}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          
           </View>
         </View>
-      </View>
-    </Modal>
-    )
+      </Modal>
+    );
+  };
 
-  }
+  const onPressBackIcon = () => {
+    setCurrentQuectionIndex(currentQuectionIndex - 1);
+    setCurrentOptionSelected(null);
+    setCorrectOption(null);
+    // setIsOptionsDisable(false);
+    setShowNextButton(false);
+
+    Animated.timing(progress, {
+      toValue: currentQuectionIndex - 1,
+      duration: 1000,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  useEffect(() => {
+    if (props.userinfo !== undefined) {
+      setUserInfo(props.userinfo.data.userData);
+      console.log('props.userinfo.userData', props.userinfo.data);
+    }
+  }, [props.userinfo]);
 
   return (
     <SafeAreaView style={{flex: 1}}>
       <ImageBackground
-        source={Images.Background}
+        source={Images.Welcome}
         resizeMode="cover"
         style={styles.mainComp}>
-        {renderProgressBar()}
+        <AppBar
+          navigation={props.navigation}
+          title={t('quectionsMain.title')}
+          profilePicImage={
+            userInfo ? (userInfo.image == '' ? null : userInfo.image) : null
+          }
+        />
+        <View style={{marginTop: 60, marginLeft: 20, marginRight: 20}}>
+          {catagoryName == 'battle'
+            ? renderTimeProgressBar()
+            : renderProgressBar()}
+        </View>
 
-        {renderQuections()}
+        <View style={styles.bottomView}>
+          {currentQuectionIndex + 1 === 1 ? null : (
+            catagoryName=='battle'?
+            null
+            :
+              <Icons
+              name="back"
+              size={30}
+              color={colors.blackColor}
+              onPress={() => onPressBackIcon()}
+            />
+          )}
 
-        {renderOptions()}
+          <ScrollView>
+            {renderQuections()}
 
-        {renderNextButton()}
+            {renderOptions()}
 
-        {renderModalizeModel()}
+            {renderaddCommentModel()}
 
-        {renderaddCommentModel()}
+            {/* Score Model */}
+            <Modal
+              animationType="slide"
+              transparent={true}
+              visible={isShowMarksModel}>
+              <View style={styles.rootModel}>
+                <View style={styles.rootModalTextWrap}>
+                  <Text
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 'bold',
+                      color: score > quections / 2 ? colors.green : colors.red,
+                    }}>
+                    {' '}
+                    {score > quections / 2 ? 'Congratulations' : 'Oops!'}
+                  </Text>
+                  <View style={styles.rootModalTextWrap2}>
+                    <Text
+                      style={{
+                        fontSize: 25,
+                        fontWeight: 'bold',
+                        color:
+                          score > quections / 2 ? colors.green : colors.red,
+                      }}>
+                      {score}
+                    </Text>
+                    <Text style={styles.quectionCountStyle}>
+                      /{quections.length}
+                    </Text>
+                  </View>
+                  {/* Retry button */}
+                  {score > quections / 2 ? (
+                    <TouchableOpacity
+                      style={styles.nextBtnStyles}
+                      onPress={() => clickGotoNectBtn()}>
+                      <Text style={styles.nextBtnTextStyles}>Go to Next</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity
+                      style={styles.nextBtnStyles}
+                      onPress={() => clickRetryBtn()}>
+                      <Text style={styles.nextBtnTextStyles}>RETRY</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            </Modal>
+          </ScrollView>
+
+          {renderNextButton()}
+          {renderModalizeModel()}
+        </View>
       </ImageBackground>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  mainComp: {
-    flex: 1,
-    paddingVertical: 40,
-    paddingHorizontal: 16,
-    backgroundColor: colors.primaryColor2,
-    position: 'relative',
-  },
-  quectionTextStyle: {
-    color: colors.white,
-    fontSize: 20,
-    opacity: 0.6,
-    marginRight: 2,
-  },
-  answerBtnstyle: {
-    borderWidth: 3,
-    borderColor: colors.green + '40',
-    backgroundColor: colors.green + '20',
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginVertical: 10,
-  },
-  ansButton: {
-    borderWidth: 3,
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderRadius: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginVertical: 10,
-  },
-  animatedbarStyle: {height: 20, borderRadius: 20, backgroundColor: '#009988'},
-  wrongAnsStyle: {
-    width: 30,
-    height: 30,
-    borderRadius: 30 / 2,
-    backgroundColor: colors.red,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  correctAnsStyle: {
-    width: 30,
-    height: 30,
-    borderRadius: 30 / 2,
-    backgroundColor: colors.green,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconStyle: {color: colors.white, fontSize: 20},
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    // alignItems: "center",
-    // marginTop: 0,
-    // width:width,
-    // height:height/2,
-  },
-  modalView: {
-    marginLeft: 20,
-    marginRight:20,
- 
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 10,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  imgContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  eightyWidthStyle: {
-    flexDirection: 'row',
-    width: '80%',
-    margin: 2,
-  },
-  uploadImage: {
-    width: '80%',
-    height: 300,
-  },
-  textAreaContainer: {
-    borderColor: '#777',
-    borderWidth: 1,
-    padding: 5,
-    borderRadius:10,
-    margin:10
-  },
-  textArea: {
-    height: 150,
-    width: width/1.5,
-    justifyContent: "flex-start",
-    color:'black'
-  },
-  floatIconStyle:{
-    color: colors.white, fontSize: 30
-  }
-
-});
-
 const mapStateToProps = (state, props) => {
   return {
     translate: getTranslate(state.localize),
+    config: state.quectionmain.quectionsConfig,
+    loading: state.common.loading,
+    reviewInfoConfig: state.quectionmain.reviewInfoConfig,
+    addReviewConfig: state.quectionmain.addReviewConfig,
+    deleteReviewConfig: state.quectionmain.deleteReviewConfig,
+    userinfo: state.profiledata.profileInfoConfig,
+    showAdverticeConfig: state.quectionmain.showAdverticeConfig,
+    addBattleMarksConfig: state.quectionmain.addBattleMarksConfig
   };
 };
 
-export default connect(mapStateToProps)(Login);
+function mapDispatchToProps(dispatch) {
+  return {
+    getQuections: payload => {
+      dispatch({type: GET_QUECTIONS, payload: payload});
+    },
+    getBattleQuections: payload => {
+      dispatch({type: GET_BATTLE_QUECTIONS, payload: payload});
+    },
+    getReviews: payload => {
+      dispatch({
+        type: GET_USER_REVIEW,
+        payload: payload,
+      });
+    },
+    addReview: payload => {
+      dispatch({
+        type: ADD_REVIEW,
+        payload: payload,
+      });
+    },
+
+    deleteReview: reviewId => {
+      dispatch({
+        type: DELETE_REVIEW,
+        reviewId: reviewId,
+      });
+    },
+
+    showAdvertice: payload => {
+      dispatch({
+        type: SHOW_ADVERTICE,
+        payload: payload,
+      });
+    },
+    addBattleMarks: payload => {
+      dispatch({
+        type: ADD_BATTLE_MARKS,
+        payload: payload,
+      });
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(QuectionMain);

@@ -1,6 +1,7 @@
-package com.chathu.apeiscole;
+package com.chathu.apeiscolelive;
 
 import com.facebook.react.ReactActivity;
+import com.zmxv.RNSound.RNSoundPackage; 
 
 public class MainActivity extends ReactActivity {
 

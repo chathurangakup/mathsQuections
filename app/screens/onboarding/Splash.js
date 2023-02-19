@@ -11,10 +11,15 @@ import {
 import LottieView from 'lottie-react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as Animatable from 'react-native-animatable';
+import {connect} from 'react-redux';
 
 import Images from '../../config/Images';
 import Lottie from '../../config/Lottie';
 import {colors} from '../../config/styles';
+import {getJwttoken} from '../../lib/Utils';
+import {LOGIN} from '../../actyonTypes/Common';
+import {setLanguageId} from '../../lib/Utils';
+import LocalizationHelper from '../../lib/LocalizationHelper';
 
 const {width} = Dimensions.get('window');
 
@@ -26,12 +31,56 @@ const Splash = props => {
     setTimeout(() => alert('lolo'), 5000);
   };
 
+  const tokenExists = async () => {
+    const token = await getJwttoken();
+    console.log('token1', token);
+    if (token != null) {
+      props.changeLoginStatus(true);
+      if (props.isLoggedIn) {
+       props.navigation.navigate('bottomTabs');
+      }
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setTime(5);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+      tokenExists();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  });
+
+  // useEffect(() => {
+  //   if (props.isLoggedIn) {
+  //     props.navigation.navigate('subjectMain');
+  //   }
+  // }, []);
+
+  const _changeLanguage = (selectedLangCode, needInit, langList) => {
+    LocalizationHelper.prototype.changeAppLanguage(
+      selectedLangCode,
+      needInit,
+      langList,
+    );
+  };
+
+  const clickNextBtn = async () => {
+    const token = await getJwttoken();
+    console.log('token1', token);
+
+    if (token != null) {
+      props.changeLoginStatus(true);
+      if (props.isLoggedIn) {
+       props.navigation.navigate('bottomTabs');
+      }
+    } else {
+      //props.navigation.navigate('languageChange'); // removed  language change page, use sinhala as default
+      setLanguageId('si');
+      _changeLanguage('si', true, false);
+      props.navigation.navigate('login');
+    }
+  };
 
   return (
     <SafeAreaView style={{flex: 1}}>
@@ -71,7 +120,8 @@ const Splash = props => {
                   backgroundColor: colors.white,
                   borderRadius: 20,
                   margin: 5,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 35,
@@ -80,7 +130,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.7,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 25,
@@ -89,7 +140,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.5,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -98,7 +150,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.4,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -107,7 +160,8 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.3,
-                }}></View>
+                }}
+              />
               <View
                 style={{
                   width: 15,
@@ -116,9 +170,10 @@ const Splash = props => {
                   borderRadius: 20,
                   margin: 5,
                   opacity: 0.2,
-                }}></View>
+                }}
+              />
             </View>
-          
+
             <Animatable.View
               animation="slideInDown"
               duration={1500}
@@ -131,15 +186,14 @@ const Splash = props => {
                 alignItems: 'center',
                 flex: 1,
               }}>
-            <TouchableOpacity onPress={()=>props.navigation.navigate('languageChange')}>
-              <Icon
-                name="play-outline"
-                size={50}
-                color={colors.primaryColor1}
-              />
-                </TouchableOpacity>
+              <TouchableOpacity onPress={() => clickNextBtn()}>
+                <Icon
+                  name="play-outline"
+                  size={50}
+                  color={colors.primaryColor1}
+                />
+              </TouchableOpacity>
             </Animatable.View>
-          
           </View>
         </View>
       </ImageBackground>
@@ -156,4 +210,18 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Splash;
+const mapStateToProps = state => {
+  return {
+    isLoggedIn: state.common.isLoggedIn,
+  };
+};
+
+function mapDispatchToProps(dispatch) {
+  return {
+    changeLoginStatus: isLoggin => {
+      dispatch({type: LOGIN, payload: isLoggin});
+    },
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Splash);

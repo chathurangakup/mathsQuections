@@ -35,12 +35,12 @@ android_library(
 
 android_build_config(
     name = "build_config",
-    package = "com.chathu.apeiscole",
+    package = "com.chathu.apeiscolelive",
 )
 
 android_resource(
     name = "res",
-    package = "com.chathu.apeiscole",
+    package = "com.chathu.apeiscolelive",
     res = "src/main/res",
 )
 
