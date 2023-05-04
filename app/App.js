@@ -8,6 +8,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import Root from '../app/screens/Root';
 import {NavigationContainer} from '@react-navigation/native';
 import {gestureHandlerRootHOC} from 'react-native-gesture-handler';
+import codePush from "react-native-code-push";
 
 import {
   navigationRef,
@@ -143,4 +144,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default gestureHandlerRootHOC(App);
+let codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
+export default codePush(codePushOptions)(gestureHandlerRootHOC(App));

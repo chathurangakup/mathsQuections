@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name"> Apē Iscole</string>
+     <string moduleConfig="true" name="CodePushDeploymentKey">kTdOEVyDyCzr6pD8Lgpw6qp40UJkYW589s5Ic</string>
 </resources>
